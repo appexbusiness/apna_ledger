@@ -32,7 +32,10 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    // The auth hero has intentionally endless ambient motion (floating,
+    // spinning coins), so pump past the entrance animations rather than
+    // waiting for the frame to settle.
+    await tester.pump(const Duration(seconds: 2));
 
     // Two text fields (phone + password) and the primary button are present.
     expect(find.byType(TextFormField), findsNWidgets(2));

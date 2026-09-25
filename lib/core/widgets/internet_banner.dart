@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../design/motion.dart';
 import '../services/connectivity_provider.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_theme.dart';
 import '../../l10n/app_localizations.dart';
 
-/// An animated banner that slides in when the device goes offline, explaining
-/// that entries are saved locally and will sync when back online.
+/// Slides in when the device goes offline, explaining that entries are saved
+/// locally and will sync when back online.
 class InternetBanner extends ConsumerWidget {
   const InternetBanner({super.key});
 
@@ -16,10 +18,11 @@ class InternetBanner extends ConsumerWidget {
     final online = ref.watch(connectivityProvider).value ?? true;
 
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 350),
+      duration: AppMotion.medium,
+      switchInCurve: AppMotion.spring,
       transitionBuilder: (child, animation) => SizeTransition(
         sizeFactor: animation,
-        axisAlignment: -1,
+        alignment: Alignment.topCenter,
         child: FadeTransition(opacity: animation, child: child),
       ),
       child: online
@@ -27,21 +30,34 @@ class InternetBanner extends ConsumerWidget {
           : Container(
               key: const ValueKey('offline'),
               width: double.infinity,
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              margin: const EdgeInsets.only(bottom: 14),
+              padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
               decoration: BoxDecoration(
-                color: AppColors.warning.withValues(alpha: 0.14),
-                borderRadius: BorderRadius.circular(12),
-                border:
-                    Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.warning.withValues(alpha: 0.18),
+                    AppColors.warning.withValues(alpha: 0.08),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: AppColors.warning.withValues(alpha: 0.45),
+                ),
               ),
               child: Row(
                 children: [
                   const _PulsingIcon(),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: Text(l10n.internetNeeded,
-                        style: const TextStyle(fontSize: 12.5, height: 1.3)),
+                    child: Text(
+                      l10n.internetNeeded,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        height: 1.35,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -60,7 +76,7 @@ class _PulsingIconState extends State<_PulsingIcon>
     with SingleTickerProviderStateMixin {
   late final AnimationController _c = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 900),
+    duration: const Duration(milliseconds: 1100),
   )..repeat(reverse: true);
 
   @override
@@ -71,10 +87,22 @@ class _PulsingIconState extends State<_PulsingIcon>
 
   @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: Tween(begin: 0.4, end: 1.0).animate(_c),
-      child: const Icon(Icons.wifi_off_rounded,
-          color: AppColors.warning, size: 20),
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (context, child) => Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.warning.withValues(alpha: 0.2 + 0.15 * _c.value),
+          boxShadow: context.surfaces.isDark
+              ? null
+              : AppSurfaces.glow(AppColors.warning, strength: 0.4 * _c.value),
+        ),
+        child: child,
+      ),
+      child: const Icon(Icons.cloud_off_rounded,
+          color: AppColors.warning, size: 19,),
     );
   }
 }

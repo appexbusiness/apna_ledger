@@ -1,14 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/di/injector.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/services/otp_service.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/design/design.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/pin_input.dart';
 
 /// Reusable OTP verification sheet. Assumes an OTP has ALREADY been sent to
 /// [phone] (via [OtpService.sendOtp]) right before this is shown — pass the
@@ -21,14 +24,13 @@ Future<bool> showOtpSheet(
   String phone, {
   OtpSendResult? initialResult,
 }) async {
-  final result = await showModalBottomSheet<bool>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
-    builder: (_) =>
+  final l10n = AppLocalizations.of(context);
+  final result = await showAppSheet<bool>(
+    context,
+    title: l10n.verifyOtp,
+    subtitle: l10n.otpHint(phone),
+    glyph: FinGlyph.security,
+    builder: (_, __) =>
         _OtpSheet(phone: phone, ref: ref, initialResult: initialResult),
   );
   return result ?? false;
@@ -47,6 +49,7 @@ class _OtpSheet extends StatefulWidget {
 class _OtpSheetState extends State<_OtpSheet> {
   final _controller = TextEditingController();
   String? _error;
+  int _shake = 0;
   bool _loading = false;
   bool _resending = false;
   int _cooldown = 0;
@@ -99,9 +102,7 @@ class _OtpSheetState extends State<_OtpSheet> {
         _resending = false;
       });
       _startTicker();
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(l10n.otpResent)));
+      Toaster.of(context).info(l10n.otpResent);
     } on AppFailure catch (e) {
       if (!mounted) return;
       setState(() {
@@ -143,6 +144,8 @@ class _OtpSheetState extends State<_OtpSheet> {
       setState(() {
         _loading = false;
         _error = l10n.invalidOtp;
+        _shake++;
+        _controller.clear();
       });
     }
   }
@@ -150,65 +153,72 @@ class _OtpSheetState extends State<_OtpSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final text = Theme.of(context).textTheme;
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 24,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 42,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(l10n.verifyOtp, style: text.titleLarge),
-          const SizedBox(height: 6),
-          Text(l10n.otpHint(widget.phone), style: text.bodySmall),
-          const SizedBox(height: 20),
-          TextField(
-            controller: _controller,
-            autofocus: true,
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.center,
-            maxLength: 6,
-            style: text.headlineSmall?.copyWith(letterSpacing: 8),
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: InputDecoration(
-              counterText: '',
-              hintText: '••••••',
-              errorText: _error,
-            ),
-            onChanged: (_) {
-              if (_error != null) setState(() => _error = null);
-            },
-            onSubmitted: (_) => _verify(),
-          ),
-          const SizedBox(height: 20),
-          AppButton(
-            label: l10n.verifyOtp,
-            loading: _loading,
-            onPressed: _verify,
-          ),
-          const SizedBox(height: 12),
-          Center(
-            child: _resending
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                : TextButton(
+    final muted = context.semantic.muted;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 4),
+        Text(
+          l10n.enterOtp,
+          style: TextStyle(color: muted, fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 14),
+        PinBoxes(
+          controller: _controller,
+          length: 6,
+          obscure: false,
+          autofocus: true,
+          errorTrigger: _shake,
+          hasError: _error != null,
+          onChanged: (_) {
+            if (_error != null) setState(() => _error = null);
+          },
+          onCompleted: (_) => _verify(),
+        ),
+        AnimatedSize(
+          duration: AppMotion.fast,
+          child: _error == null
+              ? const SizedBox(height: 18)
+              : Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    _error!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: context.semantic.expense,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+        ),
+        AppButton(
+          label: l10n.verifyOtp,
+          icon: Icons.verified_user_rounded,
+          loading: _loading,
+          onPressed: _verify,
+        ),
+        const SizedBox(height: 12),
+        _resending
+            ? const SizedBox(
+                height: 18,
+                width: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (_cooldown > 0) ...[
+                    SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        value: _cooldown / OtpService.resendCooldown.inSeconds,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  TextButton(
                     onPressed: (_cooldown > 0 || _remainingToday <= 0)
                         ? null
                         : _resend,
@@ -220,16 +230,14 @@ class _OtpSheetState extends State<_OtpSheet> {
                               : l10n.resendOtp),
                     ),
                   ),
-          ),
-          if (_remainingToday > 0)
-            Center(
-              child: Text(
-                l10n.otpAttemptsLeft(_remainingToday),
-                style: text.bodySmall,
+                ],
               ),
-            ),
-        ],
-      ),
+        if (_remainingToday > 0)
+          Text(
+            l10n.otpAttemptsLeft(_remainingToday),
+            style: TextStyle(color: muted, fontSize: 12),
+          ),
+      ],
     );
   }
 }

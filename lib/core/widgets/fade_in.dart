@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 
-/// Fades + gently slides a child in on first build. Used for ledger rows so the
-/// history feels alive as it appears.
+import '../design/motion.dart';
+
+/// Fades + springs a child in on first build. Kept for existing call sites;
+/// delegates to the shared [Entrance] motion.
 class FadeIn extends StatelessWidget {
-  const FadeIn({super.key, required this.child, this.delayMs = 0});
+  const FadeIn({super.key, required this.child, this.delayMs = 0, this.index = 0});
   final Widget child;
   final int delayMs;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: Duration(milliseconds: 320 + delayMs),
-      curve: Curves.easeOut,
-      builder: (context, t, child) => Opacity(
-        opacity: t,
-        child: Transform.translate(offset: Offset(0, (1 - t) * 10), child: child),
-      ),
+    return Entrance(
+      index: index,
+      delay: Duration(milliseconds: delayMs),
+      offset: 14,
       child: child,
     );
   }

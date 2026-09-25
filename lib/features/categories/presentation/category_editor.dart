@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/design/design.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_bottom_sheet.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../l10n/app_localizations.dart';
@@ -14,15 +16,12 @@ Future<Category?> showCategoryEditor(
   BuildContext context, {
   Category? existing,
 }) {
-  return showModalBottomSheet<Category>(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
-    builder: (context) => Padding(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: CategoryEditorSheet(existing: existing),
-    ),
+  final l10n = AppLocalizations.of(context);
+  return showAppSheet<Category>(
+    context,
+    title: existing == null ? l10n.addCategory : l10n.edit,
+    glyph: FinGlyph.categories,
+    builder: (context, _) => CategoryEditorSheet(existing: existing),
   );
 }
 
@@ -58,14 +57,16 @@ class _CategoryEditorSheetState extends State<CategoryEditorSheet> {
   late int _iconCode;
   late int _colorIndex;
   final List<_SubField> _subs = [];
+  int _nameShake = 0;
 
   @override
   void initState() {
     super.initState();
-    _name = TextEditingController(text: widget.existing?.name ?? '');
+    _name = TextEditingController(text: widget.existing?.name ?? '')
+      ..addListener(() => setState(() {}));
     _iconCode = widget.existing?.iconCode ?? _icons.first.codePoint;
     _colorIndex = widget.existing?.colorIndex ?? 0;
-    for (final s in widget.existing?.subCategories ?? const []) {
+    for (final s in widget.existing?.subCategories ?? const <SubCategory>[]) {
       _subs.add(_SubField(s.id, TextEditingController(text: s.name)));
     }
   }
@@ -79,12 +80,16 @@ class _CategoryEditorSheetState extends State<CategoryEditorSheet> {
     super.dispose();
   }
 
-  void _addSubField() =>
-      setState(() => _subs.add(_SubField(const Uuid().v4(), TextEditingController())));
+  void _addSubField() => setState(
+        () => _subs.add(_SubField(const Uuid().v4(), TextEditingController())),
+      );
 
   void _submit() {
     final name = _name.text.trim();
-    if (name.isEmpty) return;
+    if (name.isEmpty) {
+      setState(() => _nameShake++);
+      return;
+    }
     final seen = <String>{};
     final subs = <SubCategory>[];
     for (final f in _subs) {
@@ -105,102 +110,139 @@ class _CategoryEditorSheetState extends State<CategoryEditorSheet> {
             name: name,
             iconCode: _iconCode,
             colorIndex: _colorIndex,
-            subCategories: subs);
+            subCategories: subs,
+          );
     Navigator.pop(context, category);
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  widget.existing == null ? l10n.addCategory : l10n.category,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+    final color = AppColors.chartFor(_colorIndex);
+    final icon = _icons.firstWhere(
+      (i) => i.codePoint == _iconCode,
+      orElse: () => _icons.first,
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Live preview.
+        Center(
+          child: AnimatedContainer(
+            duration: AppMotion.medium,
+            padding: const EdgeInsets.fromLTRB(22, 18, 22, 16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(26),
+              gradient: RadialGradient(
+                colors: [
+                  color.withValues(alpha: 0.22),
+                  color.withValues(alpha: 0),
+                ],
               ),
-              IconButton(
-                icon: const Icon(Icons.close_rounded),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          AppTextField(
-            controller: _name,
-            label: l10n.categoryName,
-            hint: l10n.categoryName,
-          ),
-          const SizedBox(height: 20),
-          Text('Icon', style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              for (final icon in _icons)
-                _IconChoice(
-                  icon: icon,
-                  selected: _iconCode == icon.codePoint,
-                  color: AppColors.chartFor(_colorIndex),
-                  onTap: () => setState(() => _iconCode = icon.codePoint),
-                ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Text('Colour', style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              for (var i = 0; i < AppColors.chart.length; i++)
-                GestureDetector(
-                  onTap: () => setState(() => _colorIndex = i),
-                  child: Container(
-                    height: 34,
-                    width: 34,
-                    decoration: BoxDecoration(
-                      color: AppColors.chartFor(i),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: _colorIndex == i
-                            ? Theme.of(context).colorScheme.onSurface
-                            : Colors.transparent,
-                        width: 2.5,
-                      ),
-                    ),
+            ),
+            child: Column(
+              children: [
+                PopOnChange(
+                  trigger: '$_iconCode-$_colorIndex',
+                  child: Floating(
+                    amplitude: 4,
+                    child: Icon3D(icon: icon, color: color, size: 72),
                   ),
                 ),
-            ],
+                const SizedBox(height: 10),
+                Text(
+                  _name.text.trim().isEmpty
+                      ? l10n.categoryName
+                      : _name.text.trim(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 17,
+                    color: _name.text.trim().isEmpty
+                        ? context.semantic.muted
+                        : null,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 20),
-          Text('${l10n.addSubcategory} (${l10n.optional})',
-              style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 8),
-          for (var i = 0; i < _subs.length; i++)
-            Padding(
+        ),
+        const SizedBox(height: 12),
+        Shake(
+          trigger: _nameShake,
+          child: AppTextField(
+            controller: _name,
+            label: l10n.categoryName,
+            icon: Icons.drive_file_rename_outline_rounded,
+            accent: color,
+            textCapitalization: TextCapitalization.words,
+          ),
+        ),
+        const SizedBox(height: 20),
+        const GroupLabel('Icon', padding: EdgeInsets.fromLTRB(4, 0, 4, 10)),
+        LayoutBuilder(
+          builder: (context, c) {
+            const cols = 8;
+            final size = ((c.maxWidth - 7 * 8) / cols).clamp(36.0, 56.0);
+            return Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final i in _icons)
+                  _IconChoice(
+                    icon: i,
+                    size: size,
+                    selected: _iconCode == i.codePoint,
+                    color: color,
+                    onTap: () => setState(() => _iconCode = i.codePoint),
+                  ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 20),
+        const GroupLabel('Colour', padding: EdgeInsets.fromLTRB(4, 0, 4, 10)),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            for (var i = 0; i < AppColors.chart.length; i++)
+              _ColorBall(
+                color: AppColors.chartFor(i),
+                selected: _colorIndex == i,
+                onTap: () => setState(() => _colorIndex = i),
+              ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        GroupLabel(
+          '${l10n.addSubcategory} (${l10n.optional})',
+          padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
+        ),
+        for (var i = 0; i < _subs.length; i++)
+          Entrance(
+            key: ValueKey(_subs[i].id),
+            offset: 10,
+            child: Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Row(
                 children: [
                   Expanded(
                     child: AppTextField(
                       controller: _subs[i].controller,
-                      hint: l10n.subcategory,
+                      label: l10n.subcategory,
+                      icon: Icons.subdirectory_arrow_right_rounded,
+                      accent: color,
+                      textCapitalization: TextCapitalization.words,
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.close_rounded,
-                        color: context.semantic.muted),
-                    onPressed: () => setState(() {
+                  const SizedBox(width: 6),
+                  IconOrb(
+                    icon: Icons.close_rounded,
+                    size: 38,
+                    color: context.semantic.muted,
+                    onTap: () => setState(() {
                       final f = _subs.removeAt(i);
                       f.controller.dispose();
                     }),
@@ -208,20 +250,22 @@ class _CategoryEditorSheetState extends State<CategoryEditorSheet> {
                 ],
               ),
             ),
-          OutlinedButton.icon(
-            onPressed: _addSubField,
-            icon: const Icon(Icons.add, size: 18),
-            label: Text(l10n.addSubcategory),
           ),
-          const SizedBox(height: 24),
-          AppButton(
-            label: l10n.save,
-            icon: Icons.check_rounded,
-            onPressed: _submit,
-          ),
-        ],
+        AppButton(
+          label: l10n.addSubcategory,
+          icon: Icons.add_rounded,
+          variant: AppButtonVariant.secondary,
+          height: 50,
+          onPressed: _addSubField,
         ),
-      ),
+        const SizedBox(height: 22),
+        AppButton(
+          label: l10n.save,
+          icon: Icons.check_rounded,
+          color: color,
+          onPressed: _submit,
+        ),
+      ],
     );
   }
 }
@@ -229,33 +273,90 @@ class _CategoryEditorSheetState extends State<CategoryEditorSheet> {
 class _IconChoice extends StatelessWidget {
   const _IconChoice({
     required this.icon,
+    required this.size,
     required this.selected,
     required this.color,
     required this.onTap,
   });
+
   final IconData icon;
+  final double size;
   final bool selected;
   final Color color;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 46,
-        width: 46,
-        decoration: BoxDecoration(
-          color: selected
-              ? color.withValues(alpha: 0.16)
-              : Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: selected ? color : context.semantic.border,
-            width: selected ? 1.8 : 1,
-          ),
+    return Pressable(
+      onTap: () {
+        AppHaptics.select();
+        onTap();
+      },
+      haptic: false,
+      pressedScale: 0.88,
+      child: AnimatedScale(
+        scale: selected ? 1.08 : 1,
+        duration: AppMotion.medium,
+        curve: AppMotion.bouncy,
+        child: Icon3D(
+          icon: icon,
+          color: selected ? color : context.semantic.muted,
+          size: size,
+          style: selected ? Icon3DStyle.solid : Icon3DStyle.soft,
         ),
-        child: Icon(icon, color: selected ? color : context.semantic.muted),
+      ),
+    );
+  }
+}
+
+class _ColorBall extends StatelessWidget {
+  const _ColorBall({
+    required this.color,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final Color color;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Pressable(
+      onTap: () {
+        AppHaptics.select();
+        onTap();
+      },
+      haptic: false,
+      pressedScale: 0.85,
+      child: AnimatedContainer(
+        duration: AppMotion.medium,
+        curve: AppMotion.emphasized,
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            center: const Alignment(-0.35, -0.4),
+            colors: [AppColors.lighten(color, 0.2), color, AppColors.darken(color, 0.12)],
+            stops: const [0, 0.55, 1],
+          ),
+          border: Border.all(
+            color: selected
+                ? Theme.of(context).colorScheme.onSurface
+                : Colors.transparent,
+            width: 2.5,
+          ),
+          boxShadow: selected ? AppSurfaces.glow(color) : null,
+        ),
+        child: AnimatedSwitcher(
+          duration: AppMotion.fast,
+          transitionBuilder: (c, a) => ScaleTransition(scale: a, child: c),
+          child: selected
+              ? const Icon(Icons.check_rounded,
+                  key: ValueKey('on'), color: Colors.white, size: 20,)
+              : const SizedBox.shrink(key: ValueKey('off')),
+        ),
       ),
     );
   }

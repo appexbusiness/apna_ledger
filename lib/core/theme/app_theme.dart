@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+
+import '../design/motion.dart';
 import 'app_colors.dart';
 import 'app_typography.dart';
 
-/// Builds the light (default) and dark [ThemeData]. Rounded, airy, premium.
+/// Builds the light (default) and dark [ThemeData]. Layered, soft-3D surfaces
+/// with generous radii; every page transition uses the shared depth motion.
 class AppTheme {
   AppTheme._();
 
-  static const double radius = 18;
-  static const double radiusSm = 12;
+  static const double radius = 22;
+  static const double radiusSm = 16;
+  static const double radiusLg = 30;
 
   static ThemeData get light {
     final scheme = ColorScheme.fromSeed(
@@ -15,6 +19,7 @@ class AppTheme {
       brightness: Brightness.light,
     ).copyWith(
       primary: AppColors.primary,
+      onPrimary: Colors.white,
       secondary: AppColors.accent,
       surface: AppColors.lightSurface,
       error: AppColors.expense,
@@ -27,6 +32,7 @@ class AppTheme {
       border: AppColors.lightBorder,
       text: AppColors.lightText,
       muted: AppColors.lightTextMuted,
+      surfaces: AppSurfaces.light,
     );
   }
 
@@ -35,7 +41,8 @@ class AppTheme {
       seedColor: AppColors.primary,
       brightness: Brightness.dark,
     ).copyWith(
-      primary: AppColors.accentSoft,
+      primary: const Color(0xFF2DD4BF),
+      onPrimary: const Color(0xFF042F2B),
       secondary: AppColors.accent,
       surface: AppColors.darkSurface,
       error: AppColors.expense,
@@ -48,6 +55,7 @@ class AppTheme {
       border: AppColors.darkBorder,
       text: AppColors.darkText,
       muted: AppColors.darkTextMuted,
+      surfaces: AppSurfaces.dark,
     );
   }
 
@@ -59,19 +67,39 @@ class AppTheme {
     required Color border,
     required Color text,
     required Color muted,
+    required AppSurfaces surfaces,
   }) {
     final textTheme = AppTypography.textTheme(brightness, text, muted);
+    final fieldFill = surfaces.surface2;
+    OutlineInputBorder outline(Color c, [double w = 1.2]) => OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusSm),
+          borderSide: BorderSide(color: c, width: w),
+        );
+
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
       colorScheme: scheme,
       scaffoldBackgroundColor: bg,
+      canvasColor: bg,
+      cardColor: card,
       textTheme: textTheme,
       splashFactory: InkSparkle.splashFactory,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: DepthPageTransitionsBuilder(),
+          TargetPlatform.iOS: DepthPageTransitionsBuilder(),
+          TargetPlatform.macOS: DepthPageTransitionsBuilder(),
+          TargetPlatform.windows: DepthPageTransitionsBuilder(),
+          TargetPlatform.linux: DepthPageTransitionsBuilder(),
+          TargetPlatform.fuchsia: DepthPageTransitionsBuilder(),
+        },
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: bg,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: false,
         titleTextStyle: textTheme.titleLarge,
         iconTheme: IconThemeData(color: text),
@@ -87,34 +115,35 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: brightness == Brightness.light
-            ? const Color(0xFFF1F3F7)
-            : const Color(0xFF0E1626),
+        fillColor: fieldFill,
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
         hintStyle: textTheme.bodyMedium?.copyWith(color: muted),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSm),
-          borderSide: BorderSide(color: border),
+        labelStyle: textTheme.bodyMedium?.copyWith(
+          color: muted,
+          fontWeight: FontWeight.w600,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSm),
-          borderSide: BorderSide(color: border),
+        floatingLabelStyle: textTheme.bodyMedium?.copyWith(
+          color: scheme.primary,
+          fontWeight: FontWeight.w700,
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSm),
-          borderSide: BorderSide(color: scheme.primary, width: 1.6),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSm),
-          borderSide: const BorderSide(color: AppColors.expense),
+        border: outline(Colors.transparent),
+        enabledBorder: outline(Colors.transparent),
+        disabledBorder: outline(Colors.transparent),
+        focusedBorder: outline(scheme.primary, 1.8),
+        errorBorder: outline(AppColors.expense.withValues(alpha: 0.7)),
+        focusedErrorBorder: outline(AppColors.expense, 1.8),
+        errorStyle: const TextStyle(
+          color: AppColors.expense,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: const Size.fromHeight(54),
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          backgroundColor: scheme.primary,
+          foregroundColor: scheme.onPrimary,
           textStyle: textTheme.labelLarge?.copyWith(fontSize: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusSm),
@@ -131,11 +160,15 @@ class AppTheme {
           ),
         ),
       ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: scheme.primary,
+          textStyle: textTheme.labelLarge,
+        ),
+      ),
       dividerTheme: DividerThemeData(color: border, thickness: 1, space: 1),
       chipTheme: ChipThemeData(
-        backgroundColor: brightness == Brightness.light
-            ? const Color(0xFFEFF2F6)
-            : const Color(0xFF15203300),
+        backgroundColor: surfaces.surface2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
           side: BorderSide(color: border),
@@ -143,12 +176,30 @@ class AppTheme {
         labelStyle: textTheme.bodyMedium,
         side: BorderSide(color: border),
       ),
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: card,
-        selectedItemColor: scheme.primary,
-        unselectedItemColor: muted,
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? Colors.white : null,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? scheme.primary : null,
+        ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: surfaces.sheet,
+        surfaceTintColor: Colors.transparent,
+        showDragHandle: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(radiusLg)),
+        ),
+      ),
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: surfaces.sheet,
+        surfaceTintColor: Colors.transparent,
+        dayShape: WidgetStateProperty.all(const CircleBorder()),
+        todayBorder: BorderSide(color: scheme.primary, width: 1.4),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: scheme.primary,
       ),
       extensions: [
         AppSemanticColors(
@@ -159,6 +210,7 @@ class AppTheme {
           muted: muted,
           border: border,
         ),
+        surfaces,
       ],
     );
   }
@@ -233,6 +285,130 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
   }
 }
 
+/// Layered surface tokens for the soft-3D look: card faces, the raised
+/// highlight edge, the two-layer shadow, sheets and glass.
+@immutable
+class AppSurfaces extends ThemeExtension<AppSurfaces> {
+  const AppSurfaces({
+    required this.isDark,
+    required this.card,
+    required this.cardHi,
+    required this.surface2,
+    required this.sheet,
+    required this.edge,
+    required this.shadow,
+    required this.glass,
+  });
+
+  final bool isDark;
+
+  /// Card face (bottom of the face gradient).
+  final Color card;
+
+  /// Top of the card face gradient — the "lit" side.
+  final Color cardHi;
+
+  /// Recessed surface for fields, segments and chips.
+  final Color surface2;
+
+  /// Bottom-sheet background.
+  final Color sheet;
+
+  /// 1px highlight along the top edge of raised surfaces.
+  final Color edge;
+
+  /// Base shadow colour (alpha applied per layer).
+  final Color shadow;
+
+  /// Translucent fill for frosted panels (nav, toasts).
+  final Color glass;
+
+  static const light = AppSurfaces(
+    isDark: false,
+    card: Color(0xFFFFFFFF),
+    cardHi: Color(0xFFFFFFFF),
+    surface2: AppColors.lightSurface2,
+    sheet: Color(0xFFF8F9FD),
+    edge: Color(0xFFFFFFFF),
+    shadow: Color(0xFF1B2550),
+    glass: Color(0xD9FFFFFF),
+  );
+
+  static const dark = AppSurfaces(
+    isDark: true,
+    card: Color(0xFF121932),
+    cardHi: Color(0xFF1A2342),
+    surface2: AppColors.darkSurface2,
+    sheet: Color(0xFF0F1529),
+    edge: Color(0x24FFFFFF),
+    shadow: Color(0xFF000000),
+    glass: Color(0xCC121932),
+  );
+
+  /// Two-layer soft shadow: a tight contact shadow plus a wide ambient one.
+  List<BoxShadow> elevation([double level = 1]) => [
+        BoxShadow(
+          color: shadow.withValues(alpha: (isDark ? 0.45 : 0.06) * level),
+          blurRadius: 6 * level,
+          offset: Offset(0, 2 * level),
+        ),
+        BoxShadow(
+          color: shadow.withValues(alpha: (isDark ? 0.55 : 0.10) * level),
+          blurRadius: 28 * level,
+          spreadRadius: -4,
+          offset: Offset(0, 14 * level),
+        ),
+      ];
+
+  /// A coloured glow shadow for tinted 3D objects.
+  static List<BoxShadow> glow(Color c, {double strength = 1}) => [
+        BoxShadow(
+          color: c.withValues(alpha: 0.32 * strength),
+          blurRadius: 22,
+          spreadRadius: -6,
+          offset: const Offset(0, 12),
+        ),
+        BoxShadow(
+          color: c.withValues(alpha: 0.18 * strength),
+          blurRadius: 4,
+          offset: const Offset(0, 2),
+        ),
+      ];
+
+  @override
+  AppSurfaces copyWith() => this;
+
+  @override
+  AppSurfaces lerp(ThemeExtension<AppSurfaces>? other, double t) {
+    if (other is! AppSurfaces) return this;
+    return AppSurfaces(
+      isDark: t < 0.5 ? isDark : other.isDark,
+      card: Color.lerp(card, other.card, t)!,
+      cardHi: Color.lerp(cardHi, other.cardHi, t)!,
+      surface2: Color.lerp(surface2, other.surface2, t)!,
+      sheet: Color.lerp(sheet, other.sheet, t)!,
+      edge: Color.lerp(edge, other.edge, t)!,
+      shadow: Color.lerp(shadow, other.shadow, t)!,
+      glass: Color.lerp(glass, other.glass, t)!,
+    );
+  }
+}
+
 extension SemanticColorsX on BuildContext {
-  AppSemanticColors get semantic => Theme.of(this).extension<AppSemanticColors>()!;
+  /// Falls back to the app's own tokens when rendered under a foreign theme
+  /// (e.g. a bare MaterialApp in tests) instead of crashing.
+  AppSemanticColors get semantic {
+    final theme = Theme.of(this);
+    return theme.extension<AppSemanticColors>() ??
+        (theme.brightness == Brightness.dark ? AppTheme.dark : AppTheme.light)
+            .extension<AppSemanticColors>()!;
+  }
+
+  AppSurfaces get surfaces {
+    final theme = Theme.of(this);
+    return theme.extension<AppSurfaces>() ??
+        (theme.brightness == Brightness.dark
+            ? AppSurfaces.dark
+            : AppSurfaces.light);
+  }
 }

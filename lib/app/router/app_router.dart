@@ -1,7 +1,8 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/design/motion.dart';
 import '../../features/auth/presentation/providers/auth_controller.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
@@ -26,6 +27,37 @@ import '../../features/transactions/presentation/screens/add_transaction_screen.
 import '../../features/transactions/presentation/screens/recurring_screen.dart';
 import '../../features/transactions/presentation/screens/transaction_detail_screen.dart';
 import '../../features/transactions/presentation/screens/transactions_screen.dart';
+
+/// A transparent page that slides up like a bottom sheet (spring in, quick
+/// out) over a blurred, dimmed copy of the screen underneath. Used for the
+/// Add / Edit Transaction flow so it keeps deep-link routing but feels like
+/// the rest of the app's sheets.
+CustomTransitionPage<void> sheetPage({
+  required LocalKey key,
+  required Widget child,
+}) {
+  return CustomTransitionPage<void>(
+    key: key,
+    opaque: false,
+    barrierDismissible: true,
+    barrierColor: const Color(0x73050814),
+    transitionDuration: const Duration(milliseconds: 560),
+    reverseTransitionDuration: const Duration(milliseconds: 260),
+    child: child,
+    transitionsBuilder: (context, animation, secondary, child) {
+      final curved = CurvedAnimation(
+        parent: animation,
+        curve: AppMotion.spring,
+        reverseCurve: AppMotion.exit,
+      );
+      return SlideTransition(
+        position: Tween(begin: const Offset(0, 1), end: Offset.zero)
+            .animate(curved),
+        child: child,
+      );
+    },
+  );
+}
 
 /// The app's single source of navigation truth. Redirects are driven by auth
 /// state (from [authControllerProvider]) and whether first-run onboarding is
@@ -68,22 +100,26 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
       GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
       GoRoute(
-          path: '/splash', builder: (_, __) => const SplashScreen()),
+          path: '/splash', builder: (_, __) => const SplashScreen(),),
       GoRoute(path: '/lock', builder: (_, __) => const LockScreen()),
       GoRoute(
-          path: '/forgot', builder: (_, __) => const ForgotPasswordScreen()),
+          path: '/forgot', builder: (_, __) => const ForgotPasswordScreen(),),
       GoRoute(
-          path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
+          path: '/onboarding', builder: (_, __) => const OnboardingScreen(),),
 
       // Add / edit transaction is pushed above the shell (full-screen).
       // `extra` may be a TxnEntry (edit), NewTxnArgs (new, pre-filled), or null.
+      // Presented as a full-height bottom sheet over the current screen.
       GoRoute(
         path: '/dashboard/transaction',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final extra = state.extra;
-          return AddTransactionScreen(
-            existing: extra is TxnEntry ? extra : null,
-            args: extra is NewTxnArgs ? extra : null,
+          return sheetPage(
+            key: state.pageKey,
+            child: AddTransactionScreen(
+              existing: extra is TxnEntry ? extra : null,
+              args: extra is NewTxnArgs ? extra : null,
+            ),
           );
         },
       ),
@@ -137,34 +173,39 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       // The signed-in shell with its four bottom-nav branches.
-      StatefulShellRoute.indexedStack(
+      StatefulShellRoute(
         builder: (context, state, navigationShell) =>
             DashboardShell(navigationShell: navigationShell),
+        navigatorContainerBuilder: (context, navigationShell, children) =>
+            AnimatedBranchContainer(
+          currentIndex: navigationShell.currentIndex,
+          children: children,
+        ),
         branches: [
           StatefulShellBranch(routes: [
             GoRoute(
               path: '/dashboard',
               builder: (_, __) => const DashboardScreen(),
             ),
-          ]),
+          ],),
           StatefulShellBranch(routes: [
             GoRoute(
               path: '/dashboard/transactions',
               builder: (_, __) => const TransactionsScreen(),
             ),
-          ]),
+          ],),
           StatefulShellBranch(routes: [
             GoRoute(
               path: '/dashboard/categories',
               builder: (_, __) => const CategoriesScreen(),
             ),
-          ]),
+          ],),
           StatefulShellBranch(routes: [
             GoRoute(
               path: '/dashboard/settings',
               builder: (_, __) => const SettingsScreen(),
             ),
-          ]),
+          ],),
         ],
       ),
     ],

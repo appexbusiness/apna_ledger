@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/design/design.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../providers/auth_controller.dart';
 import '../providers/google_auth.dart';
@@ -23,7 +26,6 @@ class _GoogleButtonState extends ConsumerState<GoogleButton> {
   bool _busy = false;
 
   Future<void> _run() async {
-    final l10n = AppLocalizations.of(context);
     setState(() => _busy = true);
     final result = await ref.read(googleSignInServiceProvider).pick();
     if (!mounted) return;
@@ -68,19 +70,44 @@ class _GoogleButtonState extends ConsumerState<GoogleButton> {
 
   void _showError(String message) {
     final l10n = AppLocalizations.of(context);
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        icon: Icon(Icons.error_outline, color: context.semantic.expense),
-        title: Text(l10n.googleSignInFailed),
-        content: SingleChildScrollView(
-          child: SelectableText(message,
-              style: const TextStyle(fontSize: 12.5)),
-        ),
-        actions: [
-          TextButton(
+    showAppSheet<void>(
+      context,
+      builder: (context, _) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const AnimatedStatusIcon(type: ToastType.error, size: 64),
+          const SizedBox(height: 16),
+          Text(
+            l10n.googleSignInFailed,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: context.surfaces.surface2,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: SelectableText(
+              message,
+              style: const TextStyle(fontSize: 12.5),
+            ),
+          ),
+          const SizedBox(height: 18),
+          AppButton(
+            label: l10n.retry,
+            icon: Icons.refresh_rounded,
+            onPressed: () {
+              Navigator.pop(context);
+              _run();
+            },
+          ),
+          const SizedBox(height: 8),
+          AppButton(
+            label: l10n.cont,
+            variant: AppButtonVariant.ghost,
             onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cont),
           ),
         ],
       ),
@@ -90,19 +117,48 @@ class _GoogleButtonState extends ConsumerState<GoogleButton> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return OutlinedButton.icon(
-      onPressed: _busy ? null : _run,
-      icon: _busy
-          ? const SizedBox(
-              height: 18,
-              width: 18,
-              child: CircularProgressIndicator(strokeWidth: 2))
-          : SvgPicture.asset('assets/branding/google_g.svg',
-              height: 20, width: 20),
-      label: Text(l10n.continueWithGoogle),
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        side: BorderSide(color: context.semantic.border),
+    final s = context.surfaces;
+    return Pressable(
+      onTap: _busy ? null : _run,
+      semanticLabel: l10n.continueWithGoogle,
+      child: Container(
+        height: 54,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [s.cardHi, s.card],
+          ),
+          border: Border.all(color: context.semantic.border),
+          boxShadow: s.elevation(0.5),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedSwitcher(
+              duration: AppMotion.fast,
+              child: _busy
+                  ? const SizedBox(
+                      key: ValueKey('busy'),
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : SvgPicture.asset(
+                      'assets/branding/google_g.svg',
+                      key: const ValueKey('g'),
+                      height: 22,
+                      width: 22,
+                    ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              l10n.continueWithGoogle,
+              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+            ),
+          ],
+        ),
       ),
     );
   }

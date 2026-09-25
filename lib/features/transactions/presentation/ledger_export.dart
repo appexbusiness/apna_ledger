@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/design/design.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/app_bottom_sheet.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_text_field.dart';
+import '../../../core/widgets/date_sheet.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../categories/presentation/category_providers.dart';
 import '../domain/transaction.dart';
 import 'providers/transaction_providers.dart';
 import 'txn_csv.dart';
+import 'txn_ui.dart';
 
 /// One entry point for every "download" button: shows options (format + date
 /// range + types), filters, then saves the file directly.
@@ -19,16 +25,17 @@ Future<void> runLedgerDownload(
   required String title,
 }) async {
   final l10n = AppLocalizations.of(context);
+  final toast = Toaster.of(context);
   if (source.isEmpty) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(l10n.exportEmpty)));
+    toast.info(l10n.exportEmpty);
     return;
   }
-  final opts = await showModalBottomSheet<_DownloadOptions>(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
-    builder: (_) => _DownloadOptionsSheet(),
+  final opts = await showAppSheet<_DownloadOptions>(
+    context,
+    title: l10n.downloadOptions,
+    subtitle: title,
+    glyph: FinGlyph.download,
+    builder: (context, _) => const _DownloadOptionsBody(),
   );
   if (opts == null || !context.mounted) return;
 
@@ -36,33 +43,53 @@ Future<void> runLedgerDownload(
     if (opts.types.isNotEmpty && !opts.types.contains(t.type)) return false;
     if (opts.from != null && t.date.isBefore(opts.from!)) return false;
     if (opts.to != null &&
-        t.date.isAfter(DateTime(opts.to!.year, opts.to!.month, opts.to!.day, 23, 59, 59))) {
+        t.date.isAfter(
+          DateTime(opts.to!.year, opts.to!.month, opts.to!.day, 23, 59, 59),
+        )) {
       return false;
     }
     return true;
   }).toList();
 
   if (rows.isEmpty) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(l10n.exportEmpty)));
+    toast.info(l10n.exportEmpty);
     return;
   }
 
-  final cats = ref.read(categoryByIdProvider);
-  final csv = buildTxnCsv(rows, cats);
-  final service = ref.read(exportServiceProvider);
-  final ext = opts.format == 'pdf' ? 'pdf' : 'csv';
-  final location = opts.format == 'pdf'
-      ? await service.sharePdf(
-          fileName: '$fileBase.$ext',
-          title: title,
-          header: csv.header,
-          rows: csv.rows)
-      : await service.shareCsv(
-          fileName: '$fileBase.$ext', header: csv.header, rows: csv.rows);
-  if (context.mounted) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('${l10n.download} • $location')));
+  try {
+    final cats = ref.read(categoryByIdProvider);
+    final csv = buildTxnCsv(rows, cats);
+    final service = ref.read(exportServiceProvider);
+    final ext = opts.format == 'pdf' ? 'pdf' : 'csv';
+    final location = opts.format == 'pdf'
+        ? await service.sharePdf(
+            fileName: '$fileBase.$ext',
+            title: title,
+            header: csv.header,
+            rows: csv.rows,
+          )
+        : await service.shareCsv(
+            fileName: '$fileBase.$ext',
+            header: csv.header,
+            rows: csv.rows,
+          );
+    toast.success('${l10n.download} • $location');
+  } catch (_) {
+    toast.error(
+      l10n.somethingWrong,
+      retryLabel: l10n.retry,
+      onRetry: () {
+        if (context.mounted) {
+          runLedgerDownload(
+            context,
+            ref,
+            source: source,
+            fileBase: fileBase,
+            title: title,
+          );
+        }
+      },
+    );
   }
 }
 
@@ -79,24 +106,27 @@ class _DownloadOptions {
   final DateTime? to;
 }
 
-class _DownloadOptionsSheet extends StatefulWidget {
+class _DownloadOptionsBody extends StatefulWidget {
+  const _DownloadOptionsBody();
+
   @override
-  State<_DownloadOptionsSheet> createState() => _DownloadOptionsSheetState();
+  State<_DownloadOptionsBody> createState() => _DownloadOptionsBodyState();
 }
 
-class _DownloadOptionsSheetState extends State<_DownloadOptionsSheet> {
+class _DownloadOptionsBodyState extends State<_DownloadOptionsBody> {
   String _format = 'pdf';
   final Set<TransactionType> _types = {};
-  late DateTime? _from =
-      DateTime.now().subtract(const Duration(days: 90));
-  late DateTime? _to = DateTime.now();
+  DateTime? _from = DateTime.now().subtract(const Duration(days: 90));
+  DateTime? _to = DateTime.now();
 
   Future<void> _pick(bool from) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: (from ? _from : _to) ?? DateTime.now(),
-      firstDate: DateTime(2015),
-      lastDate: DateTime(2100),
+    final l10n = AppLocalizations.of(context);
+    final picked = await showAppDatePicker(
+      context,
+      initial: (from ? _from : _to) ?? DateTime.now(),
+      first: DateTime(2015),
+      last: DateTime(2100),
+      title: from ? l10n.dateFrom : l10n.dateTo,
     );
     if (picked != null) setState(() => from ? _from = picked : _to = picked);
   }
@@ -105,99 +135,170 @@ class _DownloadOptionsSheetState extends State<_DownloadOptionsSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final semantic = context.semantic;
-    String typeLabel(TransactionType t) {
-      switch (t) {
-        case TransactionType.income:
-          return l10n.income;
-        case TransactionType.expense:
-          return l10n.spending;
-        case TransactionType.loanGiven:
-          return l10n.loanGiven;
-        case TransactionType.loanTaken:
-          return l10n.loanTaken;
-      }
-    }
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-          20, 4, 20, MediaQuery.of(context).viewInsets.bottom + 20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(l10n.downloadOptions,
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 16),
-          Text(l10n.format, style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 8),
-          SegmentedButton<String>(
-            segments: [
-              ButtonSegment(
-                  value: 'pdf',
-                  label: Text(l10n.pdf),
-                  icon: const Icon(Icons.picture_as_pdf_outlined)),
-              ButtonSegment(
-                  value: 'csv',
-                  label: Text(l10n.csv),
-                  icon: const Icon(Icons.table_chart_outlined)),
-            ],
-            selected: {_format},
-            onSelectionChanged: (s) => setState(() => _format = s.first),
-          ),
-          const SizedBox(height: 16),
-          Text(l10n.types, style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final t in TransactionType.values)
-                FilterChip(
-                  label: Text(typeLabel(t)),
-                  selected: _types.contains(t),
-                  onSelected: (v) => setState(
-                      () => v ? _types.add(t) : _types.remove(t)),
-                  selectedColor:
-                      semantic.byTypeKey(t.key).withValues(alpha: 0.18),
-                ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _pick(true),
-                  icon: const Icon(Icons.event, size: 18),
-                  label: Text(
-                      _from == null ? l10n.dateFrom : Formatters.dayMonth(_from!)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        GroupLabel(l10n.format, padding: const EdgeInsets.fromLTRB(4, 0, 4, 10)),
+        Row(
+          children: [
+            Expanded(
+              child: _FormatCard(
+                label: l10n.pdf,
+                caption: 'Branded, print-ready',
+                icon: Icons.picture_as_pdf_rounded,
+                color: const Color(0xFFEF4444),
+                selected: _format == 'pdf',
+                onTap: () => setState(() => _format = 'pdf'),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _FormatCard(
+                label: l10n.csv,
+                caption: 'Excel / Sheets',
+                icon: Icons.table_chart_rounded,
+                color: const Color(0xFF16A34A),
+                selected: _format == 'csv',
+                onTap: () => setState(() => _format = 'csv'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        GroupLabel(l10n.types, padding: const EdgeInsets.fromLTRB(4, 0, 4, 10)),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final t in TransactionType.values)
+              TagChip(
+                label: t.label(l10n),
+                color: semantic.byTypeKey(t.key),
+                selected: _types.contains(t),
+                onTap: () => setState(
+                  () => _types.contains(t) ? _types.remove(t) : _types.add(t),
                 ),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _pick(false),
-                  icon: const Icon(Icons.event, size: 18),
-                  label: Text(
-                      _to == null ? l10n.dateTo : Formatters.dayMonth(_to!)),
-                ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        GroupLabel(l10n.dateRange,
+            padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),),
+        Row(
+          children: [
+            Expanded(
+              child: AppPickerField(
+                label: l10n.dateFrom,
+                value: _from == null ? null : Formatters.fullDate(_from!),
+                placeholder: l10n.anyDate,
+                icon: Icons.event_rounded,
+                onTap: () => _pick(true),
               ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => Navigator.pop(
-                context,
-                _DownloadOptions(
-                    format: _format, types: _types, from: _from, to: _to),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: AppPickerField(
+                label: l10n.dateTo,
+                value: _to == null ? null : Formatters.fullDate(_to!),
+                placeholder: l10n.anyDate,
+                icon: Icons.event_rounded,
+                onTap: () => _pick(false),
               ),
-              icon: const Icon(Icons.download_rounded),
-              label: Text(l10n.download),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        AppButton(
+          label: l10n.download,
+          icon: Icons.download_rounded,
+          onPressed: () => Navigator.pop(
+            context,
+            _DownloadOptions(
+              format: _format,
+              types: _types,
+              from: _from,
+              to: _to,
             ),
           ),
-        ],
+        ),
+      ],
+    );
+  }
+}
+
+class _FormatCard extends StatelessWidget {
+  const _FormatCard({
+    required this.label,
+    required this.caption,
+    required this.icon,
+    required this.color,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final String caption;
+  final IconData icon;
+  final Color color;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.surfaces;
+    return Pressable(
+      onTap: () {
+        AppHaptics.select();
+        onTap();
+      },
+      haptic: false,
+      child: AnimatedContainer(
+        duration: AppMotion.medium,
+        curve: AppMotion.emphasized,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: selected ? color.withValues(alpha: s.isDark ? 0.18 : 0.08) : s.card,
+          border: Border.all(
+            color: selected ? color : context.semantic.border,
+            width: selected ? 1.8 : 1,
+          ),
+          boxShadow: selected ? AppSurfaces.glow(color, strength: 0.4) : s.elevation(0.4),
+        ),
+        child: Row(
+          children: [
+            PopOnChange(
+              trigger: selected,
+              child: Icon3D(
+                icon: icon,
+                color: color,
+                size: 40,
+                style: selected ? Icon3DStyle.solid : Icon3DStyle.soft,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w800, fontSize: 15,),),
+                  Text(
+                    caption,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: context.semantic.muted,
+                      fontSize: 11.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
