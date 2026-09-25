@@ -45,8 +45,7 @@ class _AppButtonState extends State<AppButton> {
   bool _locked = false;
   bool _down = false;
 
-  bool get _disabled =>
-      widget.loading || _locked || widget.onPressed == null;
+  bool get _disabled => widget.loading || _locked || widget.onPressed == null;
 
   void _handleTap() {
     if (_disabled) return;

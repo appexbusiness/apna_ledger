@@ -45,6 +45,16 @@ class _PinBoxesState extends State<PinBoxes> {
     _focus.addListener(_rebuild);
   }
 
+  /// After the user hides the keyboard (back gesture) the field keeps focus,
+  /// so requestFocus() alone is a no-op — explicitly ask for the keyboard.
+  void _openKeyboard() {
+    if (_focus.hasFocus) {
+      SystemChannels.textInput.invokeMethod<void>('TextInput.show');
+    } else {
+      _focus.requestFocus();
+    }
+  }
+
   void _rebuild() {
     if (mounted) setState(() {});
   }
@@ -68,7 +78,8 @@ class _PinBoxesState extends State<PinBoxes> {
     return Shake(
       trigger: widget.errorTrigger,
       child: GestureDetector(
-        onTap: () => _focus.requestFocus(),
+        behavior: HitTestBehavior.opaque,
+        onTap: _openKeyboard,
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -84,6 +95,7 @@ class _PinBoxesState extends State<PinBoxes> {
                   keyboardType: TextInputType.number,
                   maxLength: widget.length,
                   showCursor: false,
+                  onTap: _openKeyboard,
                   enableInteractiveSelection: false,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: const InputDecoration(counterText: ''),

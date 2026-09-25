@@ -91,17 +91,15 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
-                        Floating(
-                          amplitude: 5,
-                          child: Icon3D(
-                            glyph: FinGlyph.lock,
-                            color: AppColors.primary,
-                            size: 84,
-                          ),
+                        BrandLogo(size: 120, haloColor: AppColors.accent),
+                        Positioned(
+                          right: 10,
+                          bottom: 14,
+                          child: Icon3D(glyph: FinGlyph.lock, size: 40),
                         ),
                         Positioned(
-                          right: -22,
-                          top: -14,
+                          left: 4,
+                          top: 4,
                           child: Floating(
                             phase: 0.5,
                             amplitude: 4,
@@ -150,7 +148,8 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                             AnimatedContainer(
                               duration: AppMotion.medium,
                               curve: AppMotion.emphasized,
-                              margin: const EdgeInsets.symmetric(horizontal: 10),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 10),
                               width: i < _pin.length ? 18 : 14,
                               height: i < _pin.length ? 18 : 14,
                               decoration: BoxDecoration(
@@ -249,8 +248,11 @@ class _Keypad extends StatelessWidget {
                   else if (k == '⌫')
                     _GlassKey(
                       onTap: () => onKey(k),
-                      child: const Icon(Icons.backspace_rounded,
-                          color: Colors.white, size: 24,),
+                      child: const Icon(
+                        Icons.backspace_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
                     )
                   else
                     _GlassKey(

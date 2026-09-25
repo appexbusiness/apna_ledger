@@ -206,8 +206,11 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           glyph: FinGlyph.phone,
           title: '+91 ${user?.phone ?? ''}',
           subtitle: 'Phone number can’t be changed',
-          trailing: Icon(Icons.lock_rounded,
-              size: 18, color: context.semantic.muted,),
+          trailing: Icon(
+            Icons.lock_rounded,
+            size: 18,
+            color: context.semantic.muted,
+          ),
         ),
       ),
       const SizedBox(height: 14),
@@ -421,8 +424,11 @@ class _EmailGoogleRowState extends ConsumerState<_EmailGoogleRow> {
                     width: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : SvgPicture.asset('assets/branding/google_g.svg',
-                    height: 18, width: 18,),
+                : SvgPicture.asset(
+                    'assets/branding/google_g.svg',
+                    height: 18,
+                    width: 18,
+                  ),
             const SizedBox(width: 10),
             Text(
               l10n.verifyWithGoogle,
@@ -462,7 +468,9 @@ Future<void> _confirmDeleteAccount(BuildContext context, WidgetRef ref) async {
   );
   if (ok != true) return;
   try {
-    await ref.read(authControllerProvider.notifier).deleteAccount(password.text);
+    await ref
+        .read(authControllerProvider.notifier)
+        .deleteAccount(password.text);
     toast.success(l10n.accountDeleted);
     // Router auto-redirects to /login once auth state clears — no manual nav.
   } catch (_) {

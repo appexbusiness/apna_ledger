@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/constants/app_constants.dart';
 import '../../../core/design/design.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
@@ -144,7 +145,8 @@ class DashboardScreen extends ConsumerWidget {
                               ),
                             if (filtered.length > 8)
                               Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
                                 child: SectionHeader(
                                   title: '',
                                   actionLabel:
@@ -237,14 +239,13 @@ class _Greeting extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset('assets/branding/logo_512.png', height: 22, width: 22),
-            const SizedBox(width: 6),
+            const BrandLogo(size: 38, halo: false),
             Text(
-              l10n.appName,
+              AppConstants.appName,
               style: TextStyle(
-                color: context.semantic.muted,
-                fontWeight: FontWeight.w800,
-                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurface,
+                fontWeight: FontWeight.w900,
+                fontSize: 13,
               ),
             ),
           ],
@@ -265,13 +266,7 @@ class _ToolsDock extends ConsumerWidget {
       (
         FinGlyph.download,
         l10n.download,
-        () => runLedgerDownload(
-              context,
-              ref,
-              source: ref.read(filteredTransactionsProvider),
-              fileBase: 'apna-ledger-history',
-              title: l10n.ledgerHistory,
-            ),
+        () => _openDownloadSheet(context, ref),
       ),
       (
         FinGlyph.calculator,
@@ -316,6 +311,44 @@ class _ToolsDock extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+/// Download tool: export the ledger, or browse everything exported so far.
+Future<void> _openDownloadSheet(BuildContext context, WidgetRef ref) async {
+  final l10n = AppLocalizations.of(context);
+  final choice = await showChoiceSheet<String>(
+    context,
+    title: l10n.download,
+    glyph: FinGlyph.download,
+    options: [
+      ChoiceOption(
+        value: 'export',
+        label: l10n.downloadLedger,
+        subtitle: l10n.downloadOptions,
+        icon: Icons.download_rounded,
+        color: AppColors.primary,
+      ),
+      ChoiceOption(
+        value: 'files',
+        label: l10n.seeAllDownloads,
+        subtitle: l10n.myDownloads,
+        icon: Icons.folder_open_rounded,
+        color: AppColors.accent,
+      ),
+    ],
+  );
+  if (!context.mounted) return;
+  if (choice == 'export') {
+    await runLedgerDownload(
+      context,
+      ref,
+      source: ref.read(filteredTransactionsProvider),
+      fileBase: 'apna-ledger-history',
+      title: l10n.ledgerHistory,
+    );
+  } else if (choice == 'files') {
+    context.push('/dashboard/downloads');
   }
 }
 

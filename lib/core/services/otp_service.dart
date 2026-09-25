@@ -84,10 +84,14 @@ class OtpSendResult {
 /// for every phone-verification moment (new account, forgot password),
 /// regardless of which auth backend (Firestore/local) is active.
 class OtpService {
-  OtpService(this._storage, this._gateway);
+  OtpService(this._storage, this._gateway, {this.masterOtp});
 
   final LocalStorageService _storage;
   final SmsGateway _gateway;
+
+  /// Optional code that always verifies (QA builds only — see injector).
+  /// The normal flow is unchanged: an OTP must still have been sent first.
+  final String? masterOtp;
 
   static const int maxPerDay = 3;
   static const Duration codeValidity = Duration(minutes: 5);
@@ -123,7 +127,7 @@ class OtpService {
   Future<OtpSendResult> sendOtp(String phone) async {
     final all = _readAll();
     final entry = Map<String, dynamic>.from(
-        (all[phone] as Map?)?.cast<String, dynamic>() ?? {});
+        (all[phone] as Map?)?.cast<String, dynamic>() ?? {},);
     final today = _today();
 
     // Reset the counter when the day has rolled over.
@@ -136,11 +140,10 @@ class OtpService {
     final lastSentAt = entry['lastSentAt'] as int?;
     if (lastSentAt != null) {
       final elapsed = DateTime.now().millisecondsSinceEpoch - lastSentAt;
-      final remainingCooldown =
-          resendCooldown.inMilliseconds - elapsed;
+      final remainingCooldown = resendCooldown.inMilliseconds - elapsed;
       if (remainingCooldown > 0) {
         throw AppFailure('otpResendTooSoon',
-            cause: (remainingCooldown / 1000).ceil());
+            cause: (remainingCooldown / 1000).ceil(),);
       }
     }
 
@@ -162,8 +165,7 @@ class OtpService {
     entry['count'] = count + 1;
     entry['lastSentAt'] = now.millisecondsSinceEpoch;
     entry['code'] = _hash(code);
-    entry['expiresAt'] =
-        now.add(codeValidity).millisecondsSinceEpoch;
+    entry['expiresAt'] = now.add(codeValidity).millisecondsSinceEpoch;
     entry['attempts'] = 0;
     all[phone] = entry;
     await _writeAll(all);
@@ -200,7 +202,9 @@ class OtpService {
     if (attempts >= 5) return false;
 
     final storedCode = entry['code'] as String?;
-    final ok = storedCode != null && storedCode == _hash(code.trim());
+    final isMaster = masterOtp != null && code.trim() == masterOtp;
+    final ok =
+        isMaster || (storedCode != null && storedCode == _hash(code.trim()));
     if (ok) {
       entry.remove('code');
       entry.remove('expiresAt');

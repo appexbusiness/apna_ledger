@@ -292,5 +292,14 @@
   "savedToast": "Saved",
   "deletedToast": "Deleted",
   "dateRange": "Date range",
-  "swipeHint": "Swipe an entry: right to edit, left to delete"
+  "swipeHint": "Swipe an entry: right to edit, left to delete",
+  "myDownloads": "My downloads",
+  "seeAllDownloads": "See all your downloaded files",
+  "downloadLedger": "Download ledger (PDF / CSV)",
+  "noDownloads": "No downloaded files yet",
+  "openFile": "Open",
+  "shareFile": "Share",
+  "view": "View",
+  "downloadSaved": "File saved",
+  "browserDownloadsHint": "Your files were saved to this browser’s Downloads folder."
 }

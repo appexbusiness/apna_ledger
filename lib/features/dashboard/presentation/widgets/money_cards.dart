@@ -404,11 +404,19 @@ class GivenTakenCard extends ConsumerWidget {
           const SizedBox(height: 14),
           Row(
             children: [
-              side(TransactionType.loanGiven, FinGlyph.given,
-                  summary.loanGiven, false,),
+              side(
+                TransactionType.loanGiven,
+                FinGlyph.given,
+                summary.loanGiven,
+                false,
+              ),
               const SizedBox(width: 12),
-              side(TransactionType.loanTaken, FinGlyph.taken,
-                  summary.loanTaken, true,),
+              side(
+                TransactionType.loanTaken,
+                FinGlyph.taken,
+                summary.loanTaken,
+                true,
+              ),
             ],
           ),
           const SizedBox(height: 14),

@@ -52,6 +52,7 @@ dependencies:
   local_auth: ^2.3.0
   flutter_svg: ^2.0.10+1
   connectivity_plus: ^6.1.0
+  open_filex: ^4.7.0
 
 dev_dependencies:
   flutter_test:
@@ -65,6 +66,7 @@ flutter:
   generate: true
   assets:
     - assets/branding/logo_512.png
+    - assets/branding/logo_transparent.png
     - assets/branding/splash_logo.png
     - assets/branding/apna_ledger_logo.svg
     - assets/branding/google_g.svg

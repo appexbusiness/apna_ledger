@@ -79,9 +79,11 @@ class SettingsScreen extends ConsumerWidget {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.science_rounded,
-                                        size: 16,
-                                        color: context.semantic.loanGiven,),
+                                    Icon(
+                                      Icons.science_rounded,
+                                      size: 16,
+                                      color: context.semantic.loanGiven,
+                                    ),
                                     const SizedBox(width: 6),
                                     Text(
                                       'Environment: ${EnvConfig.instance.flavor.label}',
@@ -254,7 +256,11 @@ class SettingsScreen extends ConsumerWidget {
                             onPressed: () => _confirmLogout(context, ref),
                           ),
                         ),
-                        const SizedBox(height: 22),
+                        const SizedBox(height: 26),
+                        const Center(
+                          child: BrandSlogan(onDark: false, compact: true),
+                        ),
+                        const SizedBox(height: 18),
                         const Center(child: PoweredByAppex()),
                         const SizedBox(height: 10),
                         Center(
@@ -390,8 +396,11 @@ class _ProfileHero extends ConsumerWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.verified_rounded,
-                          size: 14, color: Color(0xFF6EE7A8),),
+                      const Icon(
+                        Icons.verified_rounded,
+                        size: 14,
+                        color: Color(0xFF6EE7A8),
+                      ),
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
@@ -474,8 +483,7 @@ class _SettingRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
           children: [
-            leading ??
-                Icon3D(glyph: glyph, size: 40, style: Icon3DStyle.soft),
+            leading ?? Icon3D(glyph: glyph, size: 40, style: Icon3DStyle.soft),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -504,8 +512,10 @@ class _SettingRow extends StatelessWidget {
               ),
             ),
             trailing ??
-                Icon(Icons.chevron_right_rounded,
-                    color: context.semantic.muted,),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: context.semantic.muted,
+                ),
           ],
         ),
       ),
@@ -576,17 +586,23 @@ class _PinTile extends ConsumerWidget {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(l10n.enterPin,
-                style: TextStyle(
-                    color: context.semantic.muted,
-                    fontWeight: FontWeight.w700,),),
+            Text(
+              l10n.enterPin,
+              style: TextStyle(
+                color: context.semantic.muted,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             const SizedBox(height: 10),
             PinBoxes(controller: pin1, autofocus: true),
             const SizedBox(height: 20),
-            Text(l10n.confirmPin,
-                style: TextStyle(
-                    color: context.semantic.muted,
-                    fontWeight: FontWeight.w700,),),
+            Text(
+              l10n.confirmPin,
+              style: TextStyle(
+                color: context.semantic.muted,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             const SizedBox(height: 10),
             PinBoxes(
               controller: pin2,
@@ -764,8 +780,7 @@ class _GoogleAccountTile extends ConsumerStatefulWidget {
   const _GoogleAccountTile();
 
   @override
-  ConsumerState<_GoogleAccountTile> createState() =>
-      _GoogleAccountTileState();
+  ConsumerState<_GoogleAccountTile> createState() => _GoogleAccountTileState();
 }
 
 class _GoogleAccountTileState extends ConsumerState<_GoogleAccountTile> {
@@ -892,8 +907,11 @@ class _GoogleAccountTileState extends ConsumerState<_GoogleAccountTile> {
           borderRadius: BorderRadius.circular(13),
         ),
         alignment: Alignment.center,
-        child: SvgPicture.asset('assets/branding/google_g.svg',
-            height: 20, width: 20,),
+        child: SvgPicture.asset(
+          'assets/branding/google_g.svg',
+          height: 20,
+          width: 20,
+        ),
       ),
       title: l10n.googleAccount,
       subtitle: linked ? user!.email! : l10n.googleAccountNotLinked,

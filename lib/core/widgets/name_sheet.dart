@@ -19,8 +19,7 @@ Future<String?> showNameSheet(
 }) {
   final l10n = AppLocalizations.of(context);
   final controller = TextEditingController(text: initial);
-  void submit(BuildContext ctx) =>
-      Navigator.pop(ctx, controller.text.trim());
+  void submit(BuildContext ctx) => Navigator.pop(ctx, controller.text.trim());
 
   return showAppSheet<String>(
     context,

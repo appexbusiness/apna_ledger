@@ -19,6 +19,7 @@ import '../../features/settings/presentation/pages/how_to_use_page.dart';
 import '../../features/settings/presentation/pages/info_pages.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/tools/presentation/calculator_screen.dart';
+import '../../features/tools/presentation/downloads_screen.dart';
 import '../../features/tools/presentation/goals_screen.dart';
 import '../../features/tools/presentation/notes_screen.dart';
 import '../../features/transactions/domain/transaction.dart';
@@ -138,6 +139,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/dashboard/notes',
         builder: (_, __) => const NotesScreen(),
+      ),
+
+      GoRoute(
+        path: '/dashboard/downloads',
+        builder: (_, __) => const DownloadsScreen(),
       ),
 
       GoRoute(

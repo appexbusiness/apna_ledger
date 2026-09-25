@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- App Lock: fingerprint / face / device credential via local_auth. -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <application
-        android:label="apna_ledger"
+        android:label="Apna Ledger"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

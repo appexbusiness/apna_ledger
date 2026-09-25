@@ -70,24 +70,39 @@ extension FinGlyphX on FinGlyph {
   FinGlyphSpec get spec {
     switch (this) {
       case FinGlyph.income:
-        return const FinGlyphSpec(Icons.south_west_rounded, AppColors.income,
-            coin: true,);
+        return const FinGlyphSpec(
+          Icons.south_west_rounded,
+          AppColors.income,
+          coin: true,
+        );
       case FinGlyph.expense:
-        return const FinGlyphSpec(Icons.north_east_rounded, AppColors.expense,
-            coin: true,);
+        return const FinGlyphSpec(
+          Icons.north_east_rounded,
+          AppColors.expense,
+          coin: true,
+        );
       case FinGlyph.given:
-        return const FinGlyphSpec(Icons.outbox_rounded, AppColors.loanGiven,
-            coin: true,);
+        return const FinGlyphSpec(
+          Icons.outbox_rounded,
+          AppColors.loanGiven,
+          coin: true,
+        );
       case FinGlyph.taken:
         return const FinGlyphSpec(
-            Icons.move_to_inbox_rounded, AppColors.loanTaken,
-            coin: true,);
+          Icons.move_to_inbox_rounded,
+          AppColors.loanTaken,
+          coin: true,
+        );
       case FinGlyph.wallet:
         return const FinGlyphSpec(
-            Icons.account_balance_wallet_rounded, AppColors.primary,);
+          Icons.account_balance_wallet_rounded,
+          AppColors.primary,
+        );
       case FinGlyph.bank:
         return const FinGlyphSpec(
-            Icons.account_balance_rounded, Color(0xFF3B82F6),);
+          Icons.account_balance_rounded,
+          Color(0xFF3B82F6),
+        );
       case FinGlyph.upi:
         return const FinGlyphSpec(Icons.qr_code_2_rounded, Color(0xFF7C3AED));
       case FinGlyph.cash:
@@ -96,13 +111,19 @@ extension FinGlyphX on FinGlyph {
         return const FinGlyphSpec(Icons.widgets_rounded, Color(0xFF06B6D4));
       case FinGlyph.notes:
         return const FinGlyphSpec(
-            Icons.sticky_note_2_rounded, Color(0xFFE9A20F),);
+          Icons.sticky_note_2_rounded,
+          Color(0xFFE9A20F),
+        );
       case FinGlyph.reminders:
         return const FinGlyphSpec(
-            Icons.notifications_active_rounded, Color(0xFFF97316),);
+          Icons.notifications_active_rounded,
+          Color(0xFFF97316),
+        );
       case FinGlyph.recurring:
         return const FinGlyphSpec(
-            Icons.event_repeat_rounded, AppColors.loanTaken,);
+          Icons.event_repeat_rounded,
+          AppColors.loanTaken,
+        );
       case FinGlyph.analytics:
         return const FinGlyphSpec(Icons.insights_rounded, Color(0xFF3B82F6));
       case FinGlyph.goals:
@@ -121,7 +142,9 @@ extension FinGlyphX on FinGlyph {
         return const FinGlyphSpec(Icons.lock_rounded, Color(0xFF0E9F8E));
       case FinGlyph.fingerprint:
         return const FinGlyphSpec(
-            Icons.fingerprint_rounded, Color(0xFF0E9F8E),);
+          Icons.fingerprint_rounded,
+          Color(0xFF0E9F8E),
+        );
       case FinGlyph.pin:
         return const FinGlyphSpec(Icons.pin_rounded, Color(0xFF3B82F6));
       case FinGlyph.key:
@@ -132,21 +155,27 @@ extension FinGlyphX on FinGlyph {
         return const FinGlyphSpec(Icons.palette_rounded, Color(0xFFEC4899));
       case FinGlyph.help:
         return const FinGlyphSpec(
-            Icons.support_agent_rounded, Color(0xFF0EA5E9),);
+          Icons.support_agent_rounded,
+          Color(0xFF0EA5E9),
+        );
       case FinGlyph.share:
         return const FinGlyphSpec(Icons.ios_share_rounded, AppColors.income);
       case FinGlyph.legal:
         return const FinGlyphSpec(Icons.gavel_rounded, Color(0xFF64748B));
       case FinGlyph.privacy:
         return const FinGlyphSpec(
-            Icons.privacy_tip_rounded, Color(0xFF0E9F8E),);
+          Icons.privacy_tip_rounded,
+          Color(0xFF0E9F8E),
+        );
       case FinGlyph.info:
         return const FinGlyphSpec(Icons.info_rounded, Color(0xFF3B82F6));
       case FinGlyph.search:
         return const FinGlyphSpec(Icons.search_rounded, Color(0xFF64748B));
       case FinGlyph.calendar:
         return const FinGlyphSpec(
-            Icons.calendar_month_rounded, Color(0xFF3B82F6),);
+          Icons.calendar_month_rounded,
+          Color(0xFF3B82F6),
+        );
       case FinGlyph.person:
         return const FinGlyphSpec(Icons.person_rounded, AppColors.loanGiven);
       case FinGlyph.interest:
@@ -155,21 +184,27 @@ extension FinGlyphX on FinGlyph {
         return const FinGlyphSpec(Icons.logout_rounded, AppColors.expense);
       case FinGlyph.streak:
         return const FinGlyphSpec(
-            Icons.local_fire_department_rounded, Color(0xFFF97316),);
+          Icons.local_fire_department_rounded,
+          Color(0xFFF97316),
+        );
       case FinGlyph.history:
         return const FinGlyphSpec(Icons.history_rounded, Color(0xFF64748B));
       case FinGlyph.edit:
         return const FinGlyphSpec(Icons.edit_rounded, AppColors.primary);
       case FinGlyph.delete:
         return const FinGlyphSpec(
-            Icons.delete_outline_rounded, AppColors.expense,);
+          Icons.delete_outline_rounded,
+          AppColors.expense,
+        );
       case FinGlyph.learn:
         return const FinGlyphSpec(Icons.school_rounded, Color(0xFF7C3AED));
       case FinGlyph.email:
         return const FinGlyphSpec(Icons.mail_rounded, Color(0xFF3B82F6));
       case FinGlyph.phone:
         return const FinGlyphSpec(
-            Icons.phone_iphone_rounded, AppColors.primary,);
+          Icons.phone_iphone_rounded,
+          AppColors.primary,
+        );
       case FinGlyph.filter:
         return const FinGlyphSpec(Icons.tune_rounded, AppColors.primary);
       case FinGlyph.success:
@@ -278,8 +313,8 @@ class Icon3D extends StatelessWidget {
                     color: Colors.white,
                     shadows: [
                       Shadow(
-                        color: AppColors.darken(base, 0.25)
-                            .withValues(alpha: 0.6),
+                        color:
+                            AppColors.darken(base, 0.25).withValues(alpha: 0.6),
                         blurRadius: 4,
                         offset: const Offset(0, 1.5),
                       ),
@@ -377,7 +412,10 @@ class _CoinPainter extends CustomPainter {
     // Ground shadow.
     canvas.drawOval(
       Rect.fromCenter(
-          center: Offset(cx, h * 0.98), width: size.width * 0.7, height: h * 0.1,),
+        center: Offset(cx, h * 0.98),
+        width: size.width * 0.7,
+        height: h * 0.1,
+      ),
       Paint()
         ..color = Colors.black.withValues(alpha: 0.16)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
@@ -388,7 +426,8 @@ class _CoinPainter extends CustomPainter {
     for (var i = steps; i > 0; i--) {
       final dx = dir * i * (thickness / math.max(steps, 1));
       canvas.drawOval(
-        Rect.fromCenter(center: Offset(cx + dx, cy), width: w, height: h * 0.96),
+        Rect.fromCenter(
+            center: Offset(cx + dx, cy), width: w, height: h * 0.96,),
         Paint()..color = _edge,
       );
     }
@@ -407,9 +446,10 @@ class _CoinPainter extends CustomPainter {
     );
     // Face.
     final inner = Rect.fromCenter(
-        center: faceRect.center,
-        width: faceRect.width * 0.8,
-        height: faceRect.height * 0.8,);
+      center: faceRect.center,
+      width: faceRect.width * 0.8,
+      height: faceRect.height * 0.8,
+    );
     canvas.drawOval(
       inner,
       Paint()
@@ -756,8 +796,11 @@ class _SparkleState extends State<_Sparkle>
       opacity: Tween(begin: 0.25, end: 1.0).animate(_c),
       child: ScaleTransition(
         scale: Tween(begin: 0.7, end: 1.1).animate(_c),
-        child: Icon(Icons.auto_awesome_rounded,
-            size: widget.size, color: widget.color,),
+        child: Icon(
+          Icons.auto_awesome_rounded,
+          size: widget.size,
+          color: widget.color,
+        ),
       ),
     );
   }

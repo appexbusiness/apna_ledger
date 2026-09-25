@@ -21,8 +21,7 @@ String _hashPin(String pin) =>
     sha256.convert(utf8.encode('apnaledger::pin::$pin')).toString();
 
 /// User preference: require biometric/device unlock on open.
-final appLockProvider =
-    StateNotifierProvider<AppLockNotifier, bool>((ref) {
+final appLockProvider = StateNotifierProvider<AppLockNotifier, bool>((ref) {
   return AppLockNotifier(ref.watch(localStorageProvider));
 });
 

@@ -58,7 +58,8 @@ class StreakCard extends StatelessWidget {
                                       colors: [Color(0xFFFFB347), _flame],
                                     )
                                   : null,
-                              color: i < days ? null : context.surfaces.surface2,
+                              color:
+                                  i < days ? null : context.surfaces.surface2,
                             ),
                           ),
                         ),

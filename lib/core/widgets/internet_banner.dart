@@ -101,8 +101,11 @@ class _PulsingIconState extends State<_PulsingIcon>
         ),
         child: child,
       ),
-      child: const Icon(Icons.cloud_off_rounded,
-          color: AppColors.warning, size: 19,),
+      child: const Icon(
+        Icons.cloud_off_rounded,
+        color: AppColors.warning,
+        size: 19,
+      ),
     );
   }
 }

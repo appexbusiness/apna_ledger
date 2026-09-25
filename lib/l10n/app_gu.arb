@@ -240,5 +240,14 @@
   "savedToast": "સેવ થઈ ગયું",
   "deletedToast": "કાઢી નાખ્યું",
   "dateRange": "તારીખ શ્રેણી",
-  "swipeHint": "એન્ટ્રી સ્વાઇપ કરો: જમણે ફેરફાર, ડાબે કાઢો"
+  "swipeHint": "એન્ટ્રી સ્વાઇપ કરો: જમણે ફેરફાર, ડાબે કાઢો",
+  "myDownloads": "મારા ડાઉનલોડ",
+  "seeAllDownloads": "તમારી બધી ડાઉનલોડ કરેલી ફાઇલો જુઓ",
+  "downloadLedger": "લેજર ડાઉનલોડ કરો (PDF / CSV)",
+  "noDownloads": "હજી સુધી કોઈ ફાઇલ ડાઉનલોડ થઈ નથી",
+  "openFile": "ખોલો",
+  "shareFile": "શેર કરો",
+  "view": "જુઓ",
+  "downloadSaved": "ફાઇલ સેવ થઈ",
+  "browserDownloadsHint": "તમારી ફાઇલો આ બ્રાઉઝરના ડાઉનલોડ ફોલ્ડરમાં સેવ થઈ છે."
 }

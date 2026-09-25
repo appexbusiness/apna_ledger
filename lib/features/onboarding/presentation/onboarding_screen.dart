@@ -47,8 +47,7 @@ class OnboardingScreen extends ConsumerWidget {
                     padding: const EdgeInsets.fromLTRB(20, 8, 12, 0),
                     child: Row(
                       children: [
-                        Image.asset('assets/branding/logo_512.png',
-                            height: 28, width: 28,),
+                        const BrandLogo(size: 40, halo: false),
                         const SizedBox(width: 8),
                         Text(l10n.appName, style: text.titleMedium),
                         const Spacer(),

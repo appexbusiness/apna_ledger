@@ -63,8 +63,7 @@ Future<DateTime?> showAppDatePicker(
         const SizedBox(height: 8),
         Theme(
           data: Theme.of(context).copyWith(
-            colorScheme:
-                Theme.of(context).colorScheme.copyWith(primary: color),
+            colorScheme: Theme.of(context).colorScheme.copyWith(primary: color),
           ),
           child: CalendarDatePicker(
             key: ValueKey(selected),

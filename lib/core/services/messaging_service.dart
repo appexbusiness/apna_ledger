@@ -23,8 +23,7 @@ class MessagingService {
         badge: true,
         sound: true,
       );
-      FirebaseMessaging.onBackgroundMessage(
-          firebaseMessagingBackgroundHandler);
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
       FirebaseMessaging.onMessage.listen((message) {
         debugPrint('FG push: ${message.notification?.title}');
         // A local-notifications package can render this in-app if desired.

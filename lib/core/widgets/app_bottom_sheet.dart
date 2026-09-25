@@ -25,8 +25,7 @@ Future<T?> showAppSheet<T>(
   String? subtitle,
   FinGlyph? glyph,
   Color? accent,
-  required Widget Function(BuildContext context, StateSetter setSheet)
-      builder,
+  required Widget Function(BuildContext context, StateSetter setSheet) builder,
   bool dismissible = true,
   bool scrollable = true,
   EdgeInsetsGeometry padding = const EdgeInsets.fromLTRB(20, 4, 20, 24),
@@ -244,9 +243,7 @@ class _SheetDragScope extends InheritedWidget {
   final double progress;
 
   static double of(BuildContext context) =>
-      context
-          .dependOnInheritedWidgetOfExactType<_SheetDragScope>()
-          ?.progress ??
+      context.dependOnInheritedWidgetOfExactType<_SheetDragScope>()?.progress ??
       1;
 
   @override
@@ -311,9 +308,7 @@ class AppSheetBody extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                s.isDark
-                    ? Colors.white.withValues(alpha: 0.14)
-                    : Colors.white,
+                s.isDark ? Colors.white.withValues(alpha: 0.14) : Colors.white,
                 Colors.white.withValues(alpha: 0),
               ],
               stops: const [0, 0.12],
@@ -544,11 +539,16 @@ class SheetOption extends StatelessWidget {
                     transitionBuilder: (c, a) =>
                         ScaleTransition(scale: a, child: c),
                     child: selected
-                        ? Icon(Icons.check_circle_rounded,
-                            key: const ValueKey('sel'), color: accent,)
-                        : Icon(Icons.chevron_right_rounded,
+                        ? Icon(
+                            Icons.check_circle_rounded,
+                            key: const ValueKey('sel'),
+                            color: accent,
+                          )
+                        : Icon(
+                            Icons.chevron_right_rounded,
                             key: const ValueKey('chev'),
-                            color: context.semantic.muted,),
+                            color: context.semantic.muted,
+                          ),
                   ),
             ],
           ),

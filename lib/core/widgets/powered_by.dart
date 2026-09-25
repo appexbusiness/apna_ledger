@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../design/brand.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_links.dart';
 
@@ -20,25 +21,33 @@ class PoweredByAppex extends StatelessWidget {
       mainAxisAlignment:
           center ? MainAxisAlignment.center : MainAxisAlignment.start,
       children: [
-        Image.asset('assets/branding/appex_logo.png', height: 30, width: 30),
+        const AppexMark(size: 36),
         const SizedBox(width: 10),
         Flexible(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Powered by Appex Business',
-                  style: TextStyle(
-                      color: muted, fontSize: 12, fontWeight: FontWeight.w600,),),
+              Text(
+                'Powered by Appex Business',
+                style: TextStyle(
+                  color: muted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 2),
               InkWell(
                 onTap: () => openUrl(appexWebsite),
-                child: Text('www.appexbusiness.com',
-                    style: TextStyle(
-                        color: link,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        decoration: TextDecoration.underline,),),
+                child: Text(
+                  'www.appexbusiness.com',
+                  style: TextStyle(
+                    color: link,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
             ],
           ),

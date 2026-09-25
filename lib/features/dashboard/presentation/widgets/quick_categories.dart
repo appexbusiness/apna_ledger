@@ -31,49 +31,62 @@ class QuickCategories extends ConsumerWidget {
         clipBehavior: Clip.none,
         itemCount: cats.length,
         separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemBuilder: (context, i) {
-          final c = cats[i];
-          final color = AppColors.chartFor(c.colorIndex);
-          return Entrance(
-            index: i,
-            child: Pressable(
-              onTap: () => _openCategorySheet(context, ref, c),
-              pressedScale: 0.92,
-              child: Container(
-                width: 88,
-                padding: const EdgeInsets.fromLTRB(6, 12, 6, 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(22),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [context.surfaces.cardHi, context.surfaces.card],
-                  ),
-                  boxShadow: context.surfaces.elevation(0.5),
-                ),
-                child: Column(
-                  children: [
-                    Icon3D(
-                      icon: iconFromCode(c.iconCode),
-                      color: color,
-                      size: 40,
-                    ),
-                    const Spacer(),
-                    Text(
-                      c.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+        // The tile is its own widget: colours read from the theme inside an
+        // itemBuilder don't refresh on a light/dark switch, because that
+        // context belongs to the list, not the tile.
+        itemBuilder: (context, i) => Entrance(
+          index: i,
+          child: _CategoryTile(
+            category: cats[i],
+            onTap: () => _openCategorySheet(context, ref, cats[i]),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CategoryTile extends StatelessWidget {
+  const _CategoryTile({required this.category, required this.onTap});
+  final Category category;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.surfaces;
+    return Pressable(
+      onTap: onTap,
+      pressedScale: 0.92,
+      child: Container(
+        width: 88,
+        padding: const EdgeInsets.fromLTRB(6, 12, 6, 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [s.cardHi, s.card],
+          ),
+          border:
+              Border.all(color: context.semantic.border.withValues(alpha: 0.6)),
+          boxShadow: s.elevation(0.5),
+        ),
+        child: Column(
+          children: [
+            Icon3D(
+              icon: iconFromCode(category.iconCode),
+              color: AppColors.chartFor(category.colorIndex),
+              size: 40,
             ),
-          );
-        },
+            const Spacer(),
+            Text(
+              category.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+            ),
+          ],
+        ),
       ),
     );
   }

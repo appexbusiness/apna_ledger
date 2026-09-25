@@ -26,9 +26,8 @@ class AnimatedMoney extends StatelessWidget {
       duration: duration,
       curve: Curves.easeOutCubic,
       builder: (context, v, _) {
-        final text = signed
-            ? Formatters.signedSmart(v)
-            : Formatters.moneySmart(v);
+        final text =
+            signed ? Formatters.signedSmart(v) : Formatters.moneySmart(v);
         return FittedBox(
           fit: BoxFit.scaleDown,
           alignment: Alignment.centerLeft,

@@ -9,8 +9,7 @@ class LocalStorageService {
   Future<void> setString(String key, String value) =>
       _prefs.setString(key, value);
 
-  bool getBool(String key, {bool def = false}) =>
-      _prefs.getBool(key) ?? def;
+  bool getBool(String key, {bool def = false}) => _prefs.getBool(key) ?? def;
   Future<void> setBool(String key, bool value) => _prefs.setBool(key, value);
 
   Future<void> remove(String key) => _prefs.remove(key);

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/design/design.dart';
+import '../../../core/services/saved_files.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/app_bottom_sheet.dart';
@@ -26,6 +29,7 @@ Future<void> runLedgerDownload(
 }) async {
   final l10n = AppLocalizations.of(context);
   final toast = Toaster.of(context);
+  final router = GoRouter.of(context);
   if (source.isEmpty) {
     toast.info(l10n.exportEmpty);
     return;
@@ -61,19 +65,30 @@ Future<void> runLedgerDownload(
     final csv = buildTxnCsv(rows, cats);
     final service = ref.read(exportServiceProvider);
     final ext = opts.format == 'pdf' ? 'pdf' : 'csv';
-    final location = opts.format == 'pdf'
-        ? await service.sharePdf(
-            fileName: '$fileBase.$ext',
-            title: title,
-            header: csv.header,
-            rows: csv.rows,
-          )
-        : await service.shareCsv(
-            fileName: '$fileBase.$ext',
-            header: csv.header,
-            rows: csv.rows,
-          );
-    toast.success('${l10n.download} • $location');
+    // Timestamped so each export is kept (and listed in My downloads)
+    // instead of overwriting the previous one.
+    final stamp = DateFormat('yyyyMMdd-HHmmss').format(DateTime.now());
+    final name = '$fileBase-$stamp.$ext';
+    if (opts.format == 'pdf') {
+      await service.sharePdf(
+        fileName: name,
+        title: title,
+        header: csv.header,
+        rows: csv.rows,
+      );
+    } else {
+      await service.shareCsv(
+        fileName: name,
+        header: csv.header,
+        rows: csv.rows,
+      );
+    }
+    toast.success(
+      canListSavedFiles ? '${l10n.downloadSaved} • $name' : l10n.downloadSaved,
+      actionLabel: canListSavedFiles ? l10n.view : null,
+      actionIcon: Icons.folder_open_rounded,
+      onAction: () => router.push('/dashboard/downloads'),
+    );
   } catch (_) {
     toast.error(
       l10n.somethingWrong,

@@ -18,18 +18,21 @@ void main() {
   });
 
   group('Validators.password', () {
-    test('accepts 6+ chars', () => expect(Validators.password('secret'), isNull));
+    test('accepts 6+ chars',
+        () => expect(Validators.password('secret'), isNull));
     test('rejects short', () => expect(Validators.password('123'), isNotNull));
   });
 
   group('Validators.amount', () {
     test('accepts positive', () => expect(Validators.amount('250'), isNull));
     test('rejects zero', () => expect(Validators.amount('0'), isNotNull));
-    test('rejects non-numeric', () => expect(Validators.amount('abc'), isNotNull));
+    test('rejects non-numeric',
+        () => expect(Validators.amount('abc'), isNotNull));
   });
 
   group('Validators.email', () {
-    test('empty is allowed (optional)', () => expect(Validators.email(''), isNull));
+    test('empty is allowed (optional)',
+        () => expect(Validators.email(''), isNull));
     test('valid passes', () => expect(Validators.email('a@b.com'), isNull));
     test('invalid fails', () => expect(Validators.email('nope'), isNotNull));
   });

@@ -1,6 +1,7 @@
 /// One import for the design system.
 library;
 
+export 'brand.dart';
 export 'charts.dart';
 export 'feedback.dart';
 export 'fin_icons.dart';

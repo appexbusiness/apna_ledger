@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/design/design.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 
 /// Branded header (logo + title + subtitle) on a light surface.
@@ -15,10 +17,9 @@ class BrandHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Entrance(
+        const Entrance(
           scaleFrom: 0.7,
-          child: Image.asset('assets/branding/logo_512.png',
-              height: 64, width: 64,),
+          child: BrandLogo(size: 64, halo: false),
         ),
         const SizedBox(height: 18),
         Text(title, style: text.headlineMedium),
@@ -92,20 +93,49 @@ class AuthScaffold extends StatelessWidget {
                               const SizedBox(height: 20),
                             Entrance(
                               scaleFrom: 0.6,
-                              child: Floating(
-                                amplitude: 4,
-                                child: Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color:
-                                        Colors.white.withValues(alpha: 0.12),
-                                  ),
-                                  child: Image.asset(
-                                    'assets/branding/logo_512.png',
-                                    height: 60,
-                                    width: 60,
-                                  ),
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 84),
+                                child: Row(
+                                  children: [
+                                    const BrandLogo(
+                                      size: 70,
+                                      haloColor: AppColors.accent,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Flexible(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            AppConstants.appName,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleLarge
+                                                ?.copyWith(color: Colors.white),
+                                          ),
+                                          Text(
+                                            AppConstants.slogan,
+                                            style: TextStyle(
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.7),
+                                              fontSize: 12.5,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          const Text(
+                                            AppConstants.hashtag,
+                                            style: TextStyle(
+                                              color: AppColors.accentSoft,
+                                              fontSize: 11.5,
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),

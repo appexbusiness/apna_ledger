@@ -139,8 +139,11 @@ class _AppTextFieldState extends State<AppTextField> {
             ? Padding(
                 key: const ValueKey('ok'),
                 padding: const EdgeInsets.only(right: 12),
-                child: Icon(Icons.check_circle_rounded,
-                    color: semantic.income, size: 22,),
+                child: Icon(
+                  Icons.check_circle_rounded,
+                  color: semantic.income,
+                  size: 22,
+                ),
               )
             : const SizedBox(key: ValueKey('none'), width: 0),
       );
@@ -165,18 +168,17 @@ class _AppTextFieldState extends State<AppTextField> {
       child: Theme(
         data: Theme.of(context).copyWith(
           colorScheme: Theme.of(context).colorScheme.copyWith(primary: accent),
-          inputDecorationTheme:
-              Theme.of(context).inputDecorationTheme.copyWith(
-                    fillColor: _focused ? s.card : s.surface2,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                      borderSide: BorderSide(color: accent, width: 1.8),
-                    ),
-                    floatingLabelStyle: TextStyle(
-                      color: accent,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+          inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+                fillColor: _focused ? s.card : s.surface2,
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                  borderSide: BorderSide(color: accent, width: 1.8),
+                ),
+                floatingLabelStyle: TextStyle(
+                  color: accent,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
         ),
         child: TextFormField(
           controller: widget.controller,
@@ -208,9 +210,7 @@ class _AppTextFieldState extends State<AppTextField> {
                         child: Icon(
                           widget.icon,
                           size: 20,
-                          color: _focused
-                              ? accent
-                              : semantic.muted,
+                          color: _focused ? accent : semantic.muted,
                         ),
                       )),
             prefixIconConstraints:

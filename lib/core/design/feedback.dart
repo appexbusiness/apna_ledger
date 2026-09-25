@@ -38,7 +38,19 @@ class Toaster {
   final OverlayState _overlay;
   static OverlayEntry? _current;
 
-  void success(String message) => show(message, type: ToastType.success);
+  void success(
+    String message, {
+    String? actionLabel,
+    VoidCallback? onAction,
+    IconData? actionIcon,
+  }) =>
+      show(
+        message,
+        type: ToastType.success,
+        actionLabel: actionLabel,
+        onAction: onAction,
+        actionIcon: actionIcon,
+      );
 
   void info(String message) => show(message, type: ToastType.info);
 
@@ -49,6 +61,7 @@ class Toaster {
         type: ToastType.error,
         actionLabel: onRetry == null ? null : retryLabel,
         onAction: onRetry,
+        actionIcon: Icons.refresh_rounded,
       );
 
   void show(
@@ -56,6 +69,7 @@ class Toaster {
     ToastType type = ToastType.info,
     String? actionLabel,
     VoidCallback? onAction,
+    IconData? actionIcon,
   }) {
     _current?.remove();
     _current = null;
@@ -74,6 +88,7 @@ class Toaster {
         type: type,
         actionLabel: actionLabel,
         onAction: onAction,
+        actionIcon: actionIcon,
         onGone: () {
           if (_current == entry) _current = null;
           if (entry.mounted) entry.remove();
@@ -92,12 +107,14 @@ class _ToastView extends StatefulWidget {
     required this.onGone,
     this.actionLabel,
     this.onAction,
+    this.actionIcon,
   });
 
   final String message;
   final ToastType type;
   final String? actionLabel;
   final VoidCallback? onAction;
+  final IconData? actionIcon;
   final VoidCallback onGone;
 
   @override
@@ -228,8 +245,12 @@ class _ToastViewState extends State<_ToastView>
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.refresh_rounded,
-                                        size: 16, color: Colors.white,),
+                                    Icon(
+                                      widget.actionIcon ??
+                                          Icons.arrow_forward_rounded,
+                                      size: 16,
+                                      color: Colors.white,
+                                    ),
                                     const SizedBox(width: 4),
                                     Text(
                                       widget.actionLabel!,
@@ -587,7 +608,8 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: compact ? 16 : 36, horizontal: 12),
+      padding:
+          EdgeInsets.symmetric(vertical: compact ? 16 : 36, horizontal: 12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

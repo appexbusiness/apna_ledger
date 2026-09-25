@@ -21,7 +21,9 @@ Future<bool> showAppConfirm(
 }) async {
   final l10n = AppLocalizations.of(context);
   final color = accent ??
-      (danger ? context.semantic.expense : Theme.of(context).colorScheme.primary);
+      (danger
+          ? context.semantic.expense
+          : Theme.of(context).colorScheme.primary);
   if (danger) AppHaptics.medium();
   final result = await showAppSheet<bool>(
     context,
@@ -65,8 +67,7 @@ Future<({bool deleteEntries})?> showRemoveSubCategoryDialog(
         caption: entryCount > 0 ? '$entryCount' : null,
         onChanged: (v) => setSheet(() => deleteEntries = v),
       ),
-      onConfirm: () =>
-          Navigator.pop(context, (deleteEntries: deleteEntries)),
+      onConfirm: () => Navigator.pop(context, (deleteEntries: deleteEntries)),
       onCancel: () => Navigator.pop(context),
     ),
   );
@@ -242,9 +243,7 @@ class _CheckRow extends StatelessWidget {
         duration: AppMotion.medium,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: value
-              ? c.withValues(alpha: 0.08)
-              : context.surfaces.surface2,
+          color: value ? c.withValues(alpha: 0.08) : context.surfaces.surface2,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: value ? c.withValues(alpha: 0.5) : Colors.transparent,
@@ -265,8 +264,11 @@ class _CheckRow extends StatelessWidget {
                 ),
               ),
               child: value
-                  ? const Icon(Icons.check_rounded,
-                      size: 16, color: Colors.white,)
+                  ? const Icon(
+                      Icons.check_rounded,
+                      size: 16,
+                      color: Colors.white,
+                    )
                   : null,
             ),
             const SizedBox(width: 12),
@@ -281,8 +283,7 @@ class _CheckRow extends StatelessWidget {
             ),
             if (caption != null)
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                 decoration: BoxDecoration(
                   color: c,
                   borderRadius: BorderRadius.circular(10),

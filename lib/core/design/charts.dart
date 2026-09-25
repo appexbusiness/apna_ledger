@@ -39,9 +39,9 @@ class Pillars3D extends StatefulWidget {
 
 class _Pillars3DState extends State<Pillars3D>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _c =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 1100))
-        ..forward();
+  late final AnimationController _c = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 1100),)
+    ..forward();
   int _selected = -1;
 
   @override
@@ -121,8 +121,7 @@ class _PillarPainter extends CustomPainter {
   final String Function(double) valueLabel;
   final bool dark;
 
-  TextPainter _text(String s, TextStyle style, double maxW) =>
-      TextPainter(
+  TextPainter _text(String s, TextStyle style, double maxW) => TextPainter(
         text: TextSpan(text: s, style: style),
         textDirection: TextDirection.ltr,
         maxLines: 1,
@@ -183,7 +182,10 @@ class _PillarPainter extends CustomPainter {
       // Bottom rounded cap.
       canvas.drawOval(
         Rect.fromCenter(
-            center: Offset(cx, baseY), width: barW, height: ellH,),
+          center: Offset(cx, baseY),
+          width: barW,
+          height: ellH,
+        ),
         Paint()..color = AppColors.darken(color, 0.12),
       );
       // Top ellipse (lit).
@@ -195,7 +197,10 @@ class _PillarPainter extends CustomPainter {
           ..shader = LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppColors.lighten(color, 0.24), AppColors.lighten(color, 0.06)],
+            colors: [
+              AppColors.lighten(color, 0.24),
+              AppColors.lighten(color, 0.06),
+            ],
           ).createShader(topRect),
       );
       if (sel) {
@@ -218,7 +223,8 @@ class _PillarPainter extends CustomPainter {
         ),
         slot - 4,
       );
-      vt.paint(canvas, Offset(cx - vt.width / 2, top - ellH / 2 - vt.height - 3));
+      vt.paint(
+          canvas, Offset(cx - vt.width / 2, top - ellH / 2 - vt.height - 3),);
 
       // Label below.
       final lt = _text(
@@ -264,11 +270,10 @@ class Donut3D extends StatefulWidget {
   State<Donut3D> createState() => _Donut3DState();
 }
 
-class _Donut3DState extends State<Donut3D>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _c =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))
-        ..forward();
+class _Donut3DState extends State<Donut3D> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 1200),)
+    ..forward();
   int _selected = -1;
 
   @override
@@ -476,7 +481,8 @@ class RingProgress extends StatelessWidget {
         width: size,
         height: size,
         child: CustomPaint(
-          painter: _RingPainter(v: v, color: color, track: track, stroke: stroke),
+          painter:
+              _RingPainter(v: v, color: color, track: track, stroke: stroke),
           child: Center(child: child),
         ),
       ),

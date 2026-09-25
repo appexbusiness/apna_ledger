@@ -231,10 +231,18 @@ class _HeroPainter extends CustomPainter {
       );
     }
 
-    orb(Offset(size.width * 0.95, -size.height * 0.1), size.width * 0.7, glow,
-        0.34,);
-    orb(Offset(-size.width * 0.1, size.height * 1.05), size.width * 0.55,
-        accent, 0.18,);
+    orb(
+      Offset(size.width * 0.95, -size.height * 0.1),
+      size.width * 0.7,
+      glow,
+      0.34,
+    );
+    orb(
+      Offset(-size.width * 0.1, size.height * 1.05),
+      size.width * 0.55,
+      accent,
+      0.18,
+    );
 
     // Diagonal sheen bands — reads as a polished surface.
     final sheen = Paint()
@@ -345,8 +353,7 @@ class AmbientBackground extends StatelessWidget {
         Positioned(
           top: 40,
           left: -130,
-          child:
-              _Blob(color: secondary, size: 260, alpha: dark ? 0.08 : 0.09),
+          child: _Blob(color: secondary, size: 260, alpha: dark ? 0.08 : 0.09),
         ),
         Positioned.fill(child: child),
       ],
@@ -601,9 +608,8 @@ class SegmentedPills<T> extends StatelessWidget {
                               fontWeight: o == value
                                   ? FontWeight.w800
                                   : FontWeight.w600,
-                              color: o == value
-                                  ? accent
-                                  : context.semantic.muted,
+                              color:
+                                  o == value ? accent : context.semantic.muted,
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -679,7 +685,8 @@ class TagChip extends StatelessWidget {
         curve: AppMotion.emphasized,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
         decoration: BoxDecoration(
-          color: selected ? c.withValues(alpha: s.isDark ? 0.22 : 0.13) : s.card,
+          color:
+              selected ? c.withValues(alpha: s.isDark ? 0.22 : 0.13) : s.card,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
             color: selected ? c : context.semantic.border,
@@ -716,9 +723,7 @@ class TagChip extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                  color: selected
-                      ? c
-                      : Theme.of(context).colorScheme.onSurface,
+                  color: selected ? c : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),

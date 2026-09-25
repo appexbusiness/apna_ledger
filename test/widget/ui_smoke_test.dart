@@ -7,7 +7,9 @@ import 'package:apna_ledger/features/auth/presentation/providers/auth_controller
 import 'package:apna_ledger/features/categories/presentation/category_providers.dart';
 import 'package:apna_ledger/features/settings/presentation/app_settings_controller.dart';
 import 'package:apna_ledger/features/categories/presentation/categories_screen.dart';
+import 'package:apna_ledger/core/theme/app_theme.dart';
 import 'package:apna_ledger/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:apna_ledger/features/dashboard/presentation/widgets/quick_categories.dart';
 import 'package:apna_ledger/features/settings/presentation/settings_screen.dart';
 import 'package:apna_ledger/features/transactions/domain/transaction.dart';
 import 'package:apna_ledger/features/transactions/presentation/screens/transactions_screen.dart';
@@ -113,6 +115,7 @@ void main() {
         '/dashboard/calculator',
         '/dashboard/notes',
         '/dashboard/goals',
+        '/dashboard/downloads',
         '/dashboard/settings/how-to',
         '/dashboard/settings/about',
         '/dashboard/settings/privacy',
@@ -200,6 +203,47 @@ void main() {
         find.byIcon(Icons.pin_rounded, skipOffstage: false),
         'pin sheet',
       );
+
+      // Regression: switching theme while Home is in the background must
+      // restyle the Home category tiles too (they used to stay stale).
+      router.go('/dashboard/settings');
+      await settle(tester);
+      await container
+          .read(appSettingsProvider.notifier)
+          .setThemeMode(dark ? ThemeMode.light : ThemeMode.dark);
+      await settle(tester);
+      router.go('/dashboard');
+      await settle(tester);
+      final homeCtx = tester.element(find.byType(DashboardScreen));
+      final expectCard = Theme.of(homeCtx).brightness == Brightness.dark
+          ? AppSurfaces.dark.cardHi
+          : AppSurfaces.light.cardHi;
+      final tileBoxes = find
+          .descendant(
+            of: find.byType(QuickCategories, skipOffstage: false),
+            matching: find.byType(Container, skipOffstage: false),
+            skipOffstage: false,
+          )
+          .evaluate()
+          .map((e) => (e.widget as Container).decoration)
+          .whereType<BoxDecoration>()
+          // Tile faces are 2-stop gradients (Icon3D faces use 3 stops).
+          .where(
+            (d) =>
+                d.gradient is LinearGradient &&
+                (d.gradient! as LinearGradient).colors.length == 2,
+          )
+          .map((d) => (d.gradient! as LinearGradient).colors.first);
+      expect(tileBoxes, isNotEmpty);
+      expect(
+        tileBoxes.every((c) => c == expectCard),
+        isTrue,
+        reason: 'category tiles follow the new theme',
+      );
+      await container
+          .read(appSettingsProvider.notifier)
+          .setThemeMode(dark ? ThemeMode.dark : ThemeMode.light);
+      await settle(tester);
 
       // Floating nav quick-action fan.
       router.go('/dashboard');

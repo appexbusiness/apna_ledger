@@ -1,15 +1,22 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/constants/app_constants.dart';
 import '../../../core/design/design.dart';
-import '../../../core/widgets/powered_by.dart';
-import '../../../l10n/app_localizations.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../auth/presentation/providers/auth_controller.dart';
 import '../../settings/presentation/security_providers.dart';
 
-/// Branded splash on the navy vault: the logo flips in in 3D with an
-/// orbiting coin, then a 3D feature carousel cycles while the app boots.
+/// Branded splash, choreographed in beats on the navy vault:
+///   1. the Apna Ledger mark flips in with a glow and coins,
+///   2. "Apna Ledger" reveals letter by letter,
+///   3. the slogan and #hashtag chip rise in,
+///   4. a feature carousel cycles,
+///   5. the Appex Business co-brand settles at the bottom.
+/// Then it routes onward (lock / dashboard / login via redirects).
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
@@ -19,14 +26,15 @@ class SplashScreen extends ConsumerStatefulWidget {
 
 class _SplashScreenState extends ConsumerState<SplashScreen>
     with TickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
+  /// Drives beats 1–3 and 5 (0 → 1 over the intro).
+  late final AnimationController _intro = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1200),
+    duration: const Duration(milliseconds: 2200),
   )..forward();
 
   int _feature = 0;
   late final _timer = Stream<int>.periodic(
-    const Duration(milliseconds: 1000),
+    const Duration(milliseconds: 1100),
     (i) => i,
   ).listen((i) {
     if (mounted) setState(() => _feature = i);
@@ -36,18 +44,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     (FinGlyph.income, 'One-tap entries', 'Log income & spending instantly'),
     (FinGlyph.analytics, 'Clear insights', 'See where your money goes'),
     (FinGlyph.given, 'Money given & taken', 'Track loans with people'),
-    (
-      FinGlyph.security,
-      'Private & secure',
-      'No bank details, only your hisaab'
-    ),
+    (FinGlyph.security, 'Private & secure', 'No bank details, only your hisaab'),
   ];
 
   @override
   void initState() {
     super.initState();
     _timer; // start the carousel
-    Future.delayed(const Duration(milliseconds: 3200), _go);
+    Future.delayed(const Duration(milliseconds: 3600), _go);
   }
 
   void _go() {
@@ -60,196 +64,272 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   void dispose() {
     _timer.cancel();
-    _c.dispose();
+    _intro.dispose();
     super.dispose();
   }
 
+  /// Progress of a beat that runs between [from] and [to] of the intro.
+  double _beat(double from, double to, [Curve curve = Curves.easeOutCubic]) =>
+      curve.transform(((_intro.value - from) / (to - from)).clamp(0.0, 1.0));
+
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final fade = CurvedAnimation(parent: _c, curve: Curves.easeOut);
-    final scale = Tween(begin: 0.5, end: 1.0)
-        .animate(CurvedAnimation(parent: _c, curve: AppMotion.bouncy));
-    final rotate = Tween(begin: 1.4, end: 0.0)
-        .animate(CurvedAnimation(parent: _c, curve: Curves.easeOutCubic));
     final f = _features[_feature % _features.length];
-
     return Scaffold(
       body: HeroPanel(
         radius: 0,
         padding: EdgeInsets.zero,
         child: SafeArea(
-          child: SizedBox(
-            width: double.infinity,
-            child: Column(
-              children: [
-                const Spacer(flex: 3),
-                SizedBox(
-                  width: 200,
-                  height: 180,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      AnimatedBuilder(
-                        animation: _c,
-                        builder: (context, child) => Transform(
-                          alignment: Alignment.center,
-                          transform: Matrix4.identity()
-                            ..setEntry(3, 2, 0.0015)
-                            ..rotateY(rotate.value)
-                            ..scaleByDouble(
-                              scale.value,
-                              scale.value,
-                              scale.value,
-                              1,
-                            ),
-                          child: Opacity(opacity: fade.value, child: child),
+          child: AnimatedBuilder(
+            animation: _intro,
+            builder: (context, _) {
+              final logo = _beat(0, 0.45, AppMotion.bouncy);
+              final flip = _beat(0, 0.45);
+              final brand = _beat(0.35, 1);
+              return SizedBox(
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    const Spacer(flex: 3),
+                    // Beat 1 — the mark.
+                    Opacity(
+                      opacity: _beat(0, 0.25),
+                      child: Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.identity()
+                          ..setEntry(3, 2, 0.0015)
+                          ..rotateY((1 - flip) * 1.4)
+                          ..scaleByDouble(
+                            0.5 + 0.5 * logo,
+                            0.5 + 0.5 * logo,
+                            1,
+                            1,
+                          ),
+                        child: SizedBox(
+                          width: 230,
+                          height: 200,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            clipBehavior: Clip.none,
+                            children: [
+                              const BrandLogo(
+                                size: 150,
+                                haloColor: AppColors.accent,
+                              ),
+                              Positioned(
+                                right: 0,
+                                top: 8,
+                                child: Opacity(
+                                  opacity: _beat(0.3, 0.55),
+                                  child: const Floating(
+                                    phase: 0.4,
+                                    child: SpinningCoin(size: 40),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                left: 6,
+                                bottom: 26,
+                                child: Opacity(
+                                  opacity: _beat(0.4, 0.65),
+                                  child: const Floating(
+                                    phase: 0.8,
+                                    amplitude: 4,
+                                    child: Coin3D(size: 26, turn: 0.08),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: Floating(
-                          amplitude: 5,
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.white.withValues(alpha: 0.16),
-                                  blurRadius: 44,
-                                  spreadRadius: 4,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    // Beat 2 — the name, letter by letter.
+                    _LetterReveal(
+                      text: AppConstants.appName,
+                      progress: brand,
+                    ),
+                    const SizedBox(height: 12),
+                    // Beat 3 — slogan + hashtag.
+                    Opacity(
+                      opacity: _beat(0.6, 0.85),
+                      child: Transform.translate(
+                        offset: Offset(0, 14 * (1 - _beat(0.6, 0.85))),
+                        child: const BrandSlogan(),
+                      ),
+                    ),
+                    const Spacer(flex: 2),
+                    // Beat 4 — feature carousel.
+                    Opacity(
+                      opacity: _beat(0.75, 1),
+                      child: SizedBox(
+                        height: 118,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 500),
+                          switchInCurve: AppMotion.spring,
+                          transitionBuilder: (child, anim) => FadeTransition(
+                            opacity: anim,
+                            child: SlideTransition(
+                              position: Tween(
+                                begin: const Offset(0, 0.25),
+                                end: Offset.zero,
+                              ).animate(anim),
+                              child: child,
+                            ),
+                          ),
+                          child: FittedBox(
+                            key: ValueKey(_feature),
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon3D(glyph: f.$1, size: 46, coin: false),
+                                const SizedBox(height: 10),
+                                Text(
+                                  f.$2,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  f.$3,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.7),
+                                    fontSize: 12.5,
+                                  ),
                                 ),
                               ],
                             ),
-                            child: Image.asset(
-                              'assets/branding/logo_512.png',
-                              height: 120,
-                              width: 120,
-                            ),
                           ),
                         ),
-                      ),
-                      Positioned(
-                        right: 6,
-                        top: 4,
-                        child: FadeTransition(
-                          opacity: fade,
-                          child: const Floating(
-                            phase: 0.4,
-                            child: SpinningCoin(size: 48),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        left: 12,
-                        bottom: 16,
-                        child: FadeTransition(
-                          opacity: fade,
-                          child: const Floating(
-                            phase: 0.8,
-                            amplitude: 4,
-                            child: Coin3D(size: 30, turn: 0.08),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 14),
-                FadeTransition(
-                  opacity: fade,
-                  child: Column(
-                    children: [
-                      Text(
-                        l10n.appName,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
-                            ?.copyWith(color: Colors.white),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.tagline,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.6),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Spacer(flex: 2),
-                // Auto-cycling feature carousel
-                SizedBox(
-                  height: 130,
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 500),
-                    switchInCurve: AppMotion.spring,
-                    transitionBuilder: (child, anim) => FadeTransition(
-                      opacity: anim,
-                      child: SlideTransition(
-                        position: Tween(
-                          begin: const Offset(0, 0.25),
-                          end: Offset.zero,
-                        ).animate(anim),
-                        child: child,
                       ),
                     ),
-                    child: FittedBox(
-                      key: ValueKey(_feature),
-                      fit: BoxFit.scaleDown,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon3D(glyph: f.$1, size: 52, coin: false),
-                          const SizedBox(height: 12),
-                          Text(
-                            f.$2,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        for (var i = 0; i < _features.length; i++)
+                          AnimatedContainer(
+                            duration: AppMotion.medium,
+                            curve: AppMotion.emphasized,
+                            margin: const EdgeInsets.symmetric(horizontal: 3),
+                            height: 6,
+                            width: (i == _feature % _features.length) ? 22 : 6,
+                            decoration: BoxDecoration(
+                              color: (i == _feature % _features.length)
+                                  ? AppColors.accentSoft
+                                  : Colors.white.withValues(alpha: 0.35),
+                              borderRadius: BorderRadius.circular(3),
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            f.$3,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.72),
-                              fontSize: 12.5,
-                            ),
-                          ),
-                        ],
+                      ],
+                    ),
+                    const Spacer(flex: 2),
+                    // Beat 5 — parent-company co-brand.
+                    Opacity(
+                      opacity: _beat(0.7, 1),
+                      child: Transform.translate(
+                        offset: Offset(0, 20 * (1 - _beat(0.7, 1))),
+                        child: const _AppexCoBrand(),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    for (var i = 0; i < _features.length; i++)
-                      AnimatedContainer(
-                        duration: AppMotion.medium,
-                        curve: AppMotion.emphasized,
-                        margin: const EdgeInsets.symmetric(horizontal: 3),
-                        height: 6,
-                        width: (i == _feature % _features.length) ? 22 : 6,
-                        decoration: BoxDecoration(
-                          color: (i == _feature % _features.length)
-                              ? const Color(0xFFFFD56A)
-                              : Colors.white.withValues(alpha: 0.35),
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                      ),
+                    const SizedBox(height: 22),
                   ],
                 ),
-                const Spacer(flex: 2),
-                const PoweredByAppex(onDark: true),
-                const SizedBox(height: 24),
-              ],
-            ),
+              );
+            },
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Reveals [text] one letter at a time, each rising with a small bounce.
+class _LetterReveal extends StatelessWidget {
+  const _LetterReveal({required this.text, required this.progress});
+  final String text;
+  final double progress;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.headlineMedium?.copyWith(
+          color: Colors.white,
+          fontSize: 32,
+        );
+    final n = text.length;
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < n; i++)
+            Builder(
+              builder: (context) {
+                final start = i / (n + 4);
+                final t = AppMotion.bouncy.transform(
+                  ((progress - start) / 0.3).clamp(0.0, 1.0),
+                );
+                return Opacity(
+                  opacity: math.min(1, t.clamp(0.0, 1.0) * 1.2),
+                  child: Transform.translate(
+                    offset: Offset(0, 18 * (1 - t)),
+                    child: Text(text[i], style: style),
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AppexCoBrand extends StatelessWidget {
+  const _AppexCoBrand();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const AppexMark(size: 38),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'A product of',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.6),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Text(
+                'Appex Business',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

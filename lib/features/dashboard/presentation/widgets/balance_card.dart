@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/design/design.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
@@ -143,12 +144,14 @@ class _BalanceCardState extends State<BalanceCard> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        l10n.tagline,
+                        '${AppConstants.slogan}  ·  ${AppConstants.hashtag}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.55),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.3,
+                          color: Colors.white.withValues(alpha: 0.6),
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.2,
                         ),
                       ),
                       const SizedBox(height: 18),
