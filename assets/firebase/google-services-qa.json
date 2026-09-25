@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "839704694234",
+    "project_id": "apnaledgerqa",
+    "storage_bucket": "apnaledgerqa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:839704694234:android:2153b284ef1a25515e44e3",
+        "android_client_info": {
+          "package_name": "com.appexbusiness.apnaledgerqa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCV0_YZ8jFHgbv30CcV4tcb-6i63CWS23w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
