@@ -216,8 +216,8 @@ void main() {
       await settle(tester);
       final homeCtx = tester.element(find.byType(DashboardScreen));
       final expectCard = Theme.of(homeCtx).brightness == Brightness.dark
-          ? AppSurfaces.dark.cardHi
-          : AppSurfaces.light.cardHi;
+          ? AppSurfaces.dark.card
+          : AppSurfaces.light.card;
       final tileBoxes = find
           .descendant(
             of: find.byType(QuickCategories, skipOffstage: false),
@@ -227,13 +227,11 @@ void main() {
           .evaluate()
           .map((e) => (e.widget as Container).decoration)
           .whereType<BoxDecoration>()
-          // Tile faces are 2-stop gradients (Icon3D faces use 3 stops).
+          // Tile faces are solid card-coloured boxes.
+          .map((d) => d.color)
           .where(
-            (d) =>
-                d.gradient is LinearGradient &&
-                (d.gradient! as LinearGradient).colors.length == 2,
-          )
-          .map((d) => (d.gradient! as LinearGradient).colors.first);
+            (c) => c == AppSurfaces.light.card || c == AppSurfaces.dark.card,
+          );
       expect(tileBoxes, isNotEmpty);
       expect(
         tileBoxes.every((c) => c == expectCard),

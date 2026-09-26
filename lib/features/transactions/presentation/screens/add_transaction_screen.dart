@@ -266,24 +266,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
                       clipBehavior: Clip.antiAlias,
                       child: Stack(
                         children: [
-                          // Accent wash that follows the selected type.
-                          Positioned(
-                            top: -120,
-                            left: -60,
-                            right: -60,
-                            child: AnimatedContainer(
-                              duration: AppMotion.slow,
-                              height: 260,
-                              decoration: BoxDecoration(
-                                gradient: RadialGradient(
-                                  colors: [
-                                    accent.withValues(alpha: s.isDark ? 0.28 : 0.16),
-                                    accent.withValues(alpha: 0),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
                           Column(
                             children: [
                               GestureDetector(
@@ -725,11 +707,7 @@ class _TypeSelector extends StatelessWidget {
                   duration: AppMotion.medium,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [s.cardHi, s.card],
-                    ),
+                    color: s.card,
                     border: Border.all(color: color.withValues(alpha: 0.6), width: 1.5),
                     boxShadow: AppSurfaces.glow(color, strength: 0.5),
                   ),
@@ -819,11 +797,7 @@ class _AmountInput extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(26),
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [s.cardHi, s.card],
-        ),
+        color: s.card,
         boxShadow: s.elevation(0.8),
         border: Border.all(color: color.withValues(alpha: 0.25)),
       ),

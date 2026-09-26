@@ -22,6 +22,10 @@ class AppColors {
   static const Color heroBottom = Color(0xFF0A1729);
   static const Color heroGlow = Color(0xFF1FD1B9);
 
+  /// Solid (non-neon) in/out colours for text on the navy hero surfaces.
+  static const Color onDarkIn = Color(0xFF5CC593);
+  static const Color onDarkOut = Color(0xFFF08A8A);
+
   // Semantics
   static const Color income = Color(0xFF16A34A); // green
   static const Color expense = Color(0xFFEF4444); // red

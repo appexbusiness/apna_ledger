@@ -53,13 +53,8 @@ class StreakCard extends StatelessWidget {
                             margin: const EdgeInsets.only(right: 4),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(4),
-                              gradient: i < days
-                                  ? const LinearGradient(
-                                      colors: [Color(0xFFFFB347), _flame],
-                                    )
-                                  : null,
                               color:
-                                  i < days ? null : context.surfaces.surface2,
+                                  i < days ? _flame : context.surfaces.surface2,
                             ),
                           ),
                         ),

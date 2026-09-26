@@ -346,11 +346,7 @@ class _ProfileHero extends ConsumerWidget {
             padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [AppColors.accentSoft, AppColors.goldDeep],
-              ),
+              color: AppColors.accent,
               boxShadow: AppSurfaces.glow(AppColors.accent),
             ),
             child: Container(
@@ -399,7 +395,7 @@ class _ProfileHero extends ConsumerWidget {
                       const Icon(
                         Icons.verified_rounded,
                         size: 14,
-                        color: Color(0xFF6EE7A8),
+                        color: AppColors.onDarkIn,
                       ),
                       const SizedBox(width: 4),
                       Flexible(
@@ -408,7 +404,7 @@ class _ProfileHero extends ConsumerWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color: Color(0xFF6EE7A8),
+                            color: AppColors.onDarkIn,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),

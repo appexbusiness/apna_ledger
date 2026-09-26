@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/design/design.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
@@ -330,7 +331,7 @@ class _NetStrip extends StatelessWidget {
                     format: Formatters.signedSmart,
                     style: AppTypography.money(
                       size: 26,
-                      color: net >= 0 ? const Color(0xFF6EE7A8) : const Color(0xFFFF9C9C),
+                      color: net >= 0 ? AppColors.onDarkIn : AppColors.onDarkOut,
                     ),
                   ),
                 ),

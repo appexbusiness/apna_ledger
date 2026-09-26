@@ -265,11 +265,7 @@ class _SwipeBg extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        gradient: LinearGradient(
-          begin: alignLeft ? Alignment.centerLeft : Alignment.centerRight,
-          end: alignLeft ? Alignment.centerRight : Alignment.centerLeft,
-          colors: [color.withValues(alpha: 0.2), color.withValues(alpha: 0)],
-        ),
+        color: color.withValues(alpha: 0.2),
       ),
       alignment: alignLeft ? Alignment.centerLeft : Alignment.centerRight,
       child: Row(

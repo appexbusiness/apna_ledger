@@ -290,16 +290,7 @@ class _GlassKey extends StatelessWidget {
         height: 74,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: onTap == null
-              ? null
-              : LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.16),
-                    Colors.white.withValues(alpha: 0.05),
-                  ],
-                ),
+          color: onTap == null ? null : Colors.white.withValues(alpha: 0.1),
           border: onTap == null
               ? null
               : Border.all(color: Colors.white.withValues(alpha: 0.14)),

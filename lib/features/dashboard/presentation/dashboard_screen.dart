@@ -186,22 +186,14 @@ class _Greeting extends StatelessWidget {
             height: 50,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [AppColors.accentSoft, AppColors.goldDeep],
-              ),
+              color: AppColors.accent,
               boxShadow: AppSurfaces.glow(AppColors.accent, strength: 0.7),
             ),
             padding: const EdgeInsets.all(2.5),
             child: Container(
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [AppColors.heroTop, AppColors.heroBottom],
-                ),
+                color: AppColors.heroTop,
               ),
               alignment: Alignment.center,
               child: Text(

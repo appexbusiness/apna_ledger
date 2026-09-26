@@ -5,7 +5,7 @@ import '../design/motion.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 
-/// Premium text field: floating label, animated focus glow, and inline
+/// Premium text field: floating label, animated focus ring, and inline
 /// validation — a green tick slides in once a validated field becomes valid,
 /// and the field shakes when an external [errorText] appears.
 class AppTextField extends StatefulWidget {
@@ -154,16 +154,7 @@ class _AppTextFieldState extends State<AppTextField> {
       curve: AppMotion.emphasized,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-        boxShadow: _focused
-            ? [
-                BoxShadow(
-                  color: accent.withValues(alpha: s.isDark ? 0.28 : 0.18),
-                  blurRadius: 18,
-                  spreadRadius: -2,
-                  offset: const Offset(0, 6),
-                ),
-              ]
-            : null,
+        boxShadow: _focused ? s.elevation(0.5) : null,
       ),
       child: Theme(
         data: Theme.of(context).copyWith(

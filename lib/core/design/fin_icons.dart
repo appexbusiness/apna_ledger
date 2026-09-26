@@ -216,7 +216,7 @@ extension FinGlyphX on FinGlyph {
 }
 
 enum Icon3DStyle {
-  /// Solid extruded tile: gradient face, darker side, glossy cap, glow.
+  /// Solid extruded tile: solid face on a darker side (the thickness).
   solid,
 
   /// Soft tinted tile with a coloured glyph — for dense lists.
@@ -285,26 +285,7 @@ class Icon3D extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(r),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.lighten(base, 0.14),
-                      base,
-                      AppColors.darken(base, 0.06),
-                    ],
-                  ),
-                ),
-                foregroundDecoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(r),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.center,
-                    colors: [
-                      Colors.white.withValues(alpha: 0.32),
-                      Colors.white.withValues(alpha: 0),
-                    ],
-                  ),
+                  color: base,
                 ),
                 child: Center(
                   child: Icon(
@@ -332,14 +313,7 @@ class Icon3D extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(r),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              base.withValues(alpha: dark ? 0.30 : 0.16),
-              base.withValues(alpha: dark ? 0.14 : 0.07),
-            ],
-          ),
+          color: base.withValues(alpha: dark ? 0.22 : 0.12),
           border: Border.all(color: base.withValues(alpha: dark ? 0.35 : 0.2)),
         ),
         child: Center(
@@ -648,12 +622,7 @@ class FinIllustration extends StatelessWidget {
             height: size * 0.95,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  c.withValues(alpha: dark ? 0.26 : 0.18),
-                  c.withValues(alpha: 0),
-                ],
-              ),
+              color: c.withValues(alpha: dark ? 0.12 : 0.08),
             ),
           ),
           // Back plate.
@@ -682,14 +651,7 @@ class FinIllustration extends StatelessWidget {
                 padding: EdgeInsets.all(size * 0.05),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(size * 0.09),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      context.surfaces.cardHi,
-                      context.surfaces.card,
-                    ],
-                  ),
+                  color: context.surfaces.card,
                   boxShadow: context.surfaces.elevation(0.8),
                 ),
                 child: Column(

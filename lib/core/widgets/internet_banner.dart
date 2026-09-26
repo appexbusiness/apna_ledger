@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../design/motion.dart';
 import '../services/connectivity_provider.dart';
 import '../theme/app_colors.dart';
-import '../theme/app_theme.dart';
 import '../../l10n/app_localizations.dart';
 
 /// Slides in when the device goes offline, explaining that entries are saved
@@ -33,12 +32,7 @@ class InternetBanner extends ConsumerWidget {
               margin: const EdgeInsets.only(bottom: 14),
               padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.warning.withValues(alpha: 0.18),
-                    AppColors.warning.withValues(alpha: 0.08),
-                  ],
-                ),
+                color: AppColors.warning.withValues(alpha: 0.14),
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
                   color: AppColors.warning.withValues(alpha: 0.45),
@@ -95,10 +89,7 @@ class _PulsingIconState extends State<_PulsingIcon>
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: AppColors.warning.withValues(alpha: 0.2 + 0.15 * _c.value),
-          boxShadow: context.surfaces.isDark
-              ? null
-              : AppSurfaces.glow(AppColors.warning, strength: 0.4 * _c.value),
-        ),
+                  ),
         child: child,
       ),
       child: const Icon(

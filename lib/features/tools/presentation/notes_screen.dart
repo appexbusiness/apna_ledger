@@ -197,11 +197,7 @@ class _NoteCard extends StatelessWidget {
                   borderRadius: const BorderRadius.horizontal(
                     left: Radius.circular(22),
                   ),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [AppColors.lighten(color, 0.1), color],
-                  ),
+                  color: color,
                 ),
               ),
               Expanded(

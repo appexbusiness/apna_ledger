@@ -342,11 +342,7 @@ class _AnimatedStatusIconState extends State<AnimatedStatusIcon>
               height: widget.size,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [AppColors.lighten(color, 0.14), color],
-                ),
+                color: color,
                 boxShadow: AppSurfaces.glow(color, strength: 0.7),
               ),
               child: CustomPaint(

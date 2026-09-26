@@ -265,9 +265,7 @@ class _ThemeCard extends StatelessWidget {
                 height: 22,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(6),
-                  gradient: const LinearGradient(
-                    colors: [AppColors.heroTop, AppColors.heroBottom],
-                  ),
+                  color: AppColors.heroTop,
                 ),
               ),
               const SizedBox(height: 5),

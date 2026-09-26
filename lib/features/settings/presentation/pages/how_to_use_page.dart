@@ -149,14 +149,7 @@ class _StepTile extends StatelessWidget {
                       margin: const EdgeInsets.symmetric(vertical: 6),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(2),
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            color.withValues(alpha: 0.6),
-                            color.withValues(alpha: 0.05),
-                          ],
-                        ),
+                        color: color.withValues(alpha: 0.6),
                       ),
                     ),
                   ),

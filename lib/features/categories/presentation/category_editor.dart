@@ -135,12 +135,7 @@ class _CategoryEditorSheetState extends State<CategoryEditorSheet> {
             padding: const EdgeInsets.fromLTRB(22, 18, 22, 16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(26),
-              gradient: RadialGradient(
-                colors: [
-                  color.withValues(alpha: 0.22),
-                  color.withValues(alpha: 0),
-                ],
-              ),
+              color: color.withValues(alpha: 0.1),
             ),
             child: Column(
               children: [
@@ -336,11 +331,7 @@ class _ColorBall extends StatelessWidget {
         height: 38,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: RadialGradient(
-            center: const Alignment(-0.35, -0.4),
-            colors: [AppColors.lighten(color, 0.2), color, AppColors.darken(color, 0.12)],
-            stops: const [0, 0.55, 1],
-          ),
+          color: color,
           border: Border.all(
             color: selected
                 ? Theme.of(context).colorScheme.onSurface

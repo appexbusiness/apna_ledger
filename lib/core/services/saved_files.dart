@@ -8,12 +8,18 @@ class SavedFile {
     required this.name,
     required this.sizeBytes,
     required this.modified,
+    required this.location,
   });
 
+  /// The app's own copy (used to open / share).
   final String path;
   final String name;
   final int sizeBytes;
   final DateTime modified;
+
+  /// Where the user finds it on the device, e.g.
+  /// "Internal storage/Download/ApnaLedger/…" on Android.
+  final String location;
 
   bool get isPdf => name.toLowerCase().endsWith('.pdf');
 }
@@ -30,3 +36,7 @@ Future<void> deleteSavedFile(SavedFile file) => impl.deleteSavedFile(file);
 /// Opens the file in the device's default viewer. Returns an error message,
 /// or null on success.
 Future<String?> openSavedFile(SavedFile file) => impl.openSavedFile(file);
+
+/// Opens the folder that holds [file] in the system file manager. Returns an
+/// error message, or null on success.
+Future<String?> openSavedFolder(SavedFile file) => impl.openSavedFolder(file);

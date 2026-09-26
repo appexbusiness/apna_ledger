@@ -164,11 +164,7 @@ class _MonthlyMovementCardState extends ConsumerState<MonthlyMovementCard> {
           toY: _grown ? v : 0,
           width: 11,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
-          gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [AppColors.darken(c, 0.06), AppColors.lighten(c, 0.12)],
-          ),
+          color: c,
           backDrawRodData: BackgroundBarChartRodData(
             show: true,
             toY: maxY <= 0 ? 1 : maxY * 1.1,
@@ -263,8 +259,8 @@ class _MonthlyMovementCardState extends ConsumerState<MonthlyMovementCard> {
                             Formatters.moneySmart(rod.toY),
                             TextStyle(
                               color: rodIndex == 0
-                                  ? const Color(0xFF6EE7A8)
-                                  : const Color(0xFFFF9C9C),
+                                  ? AppColors.onDarkIn
+                                  : AppColors.onDarkOut,
                               fontWeight: FontWeight.w800,
                               fontSize: 12,
                             ),

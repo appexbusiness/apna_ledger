@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/design/design.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -162,7 +163,7 @@ class _BalanceCardState extends State<BalanceCard> {
                               icon: Icons.south_west_rounded,
                               label: l10n.thisMonth,
                               value: widget.monthIn,
-                              color: const Color(0xFF6EE7A8),
+                              color: AppColors.onDarkIn,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -171,7 +172,7 @@ class _BalanceCardState extends State<BalanceCard> {
                               icon: Icons.north_east_rounded,
                               label: l10n.thisMonth,
                               value: widget.monthOut,
-                              color: const Color(0xFFFF9C9C),
+                              color: AppColors.onDarkOut,
                             ),
                           ),
                         ],

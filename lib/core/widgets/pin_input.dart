@@ -163,28 +163,14 @@ class _Box extends StatelessWidget {
       height: width * 1.12,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: filled || active
-              ? [surface.cardHi, surface.card]
-              : [surface.surface2, surface.surface2],
-        ),
+        color: filled || active ? surface.card : surface.surface2,
         border: Border.all(
           color: active || error
               ? accent
               : (filled ? accent.withValues(alpha: 0.4) : Colors.transparent),
           width: active ? 2 : 1.4,
         ),
-        boxShadow: active
-            ? [
-                BoxShadow(
-                  color: accent.withValues(alpha: 0.25),
-                  blurRadius: 14,
-                  offset: const Offset(0, 5),
-                ),
-              ]
-            : (filled ? surface.elevation(0.4) : null),
+        boxShadow: filled || active ? surface.elevation(0.4) : null,
       ),
       alignment: Alignment.center,
       child: AnimatedSwitcher(

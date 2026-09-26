@@ -228,14 +228,7 @@ class _FloatingNav extends StatelessWidget {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(17),
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                primary.withValues(alpha: 0.26),
-                                primary.withValues(alpha: 0.14),
-                              ],
-                            ),
+                            color: primary.withValues(alpha: 0.26),
                             border: Border.all(
                               color: primary.withValues(alpha: 0.35),
                             ),
@@ -361,11 +354,7 @@ class _CenterOrb extends StatelessWidget {
             height: 64,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [AppColors.accentSoft, AppColors.goldDeep],
-              ),
+              color: AppColors.accent,
               boxShadow: [
                 ...AppSurfaces.glow(AppColors.primary, strength: 1.2),
                 BoxShadow(
@@ -379,29 +368,7 @@ class _CenterOrb extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color.lerp(
-                      AppColors.lighten(AppColors.primary, 0.1),
-                      AppColors.heroTop,
-                      t,
-                    )!,
-                    Color.lerp(AppColors.primaryDark, AppColors.heroBottom, t)!,
-                  ],
-                ),
-              ),
-              foregroundDecoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.center,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.35),
-                    Colors.white.withValues(alpha: 0),
-                  ],
-                ),
+                color: Color.lerp(AppColors.primary, AppColors.heroTop, t)!,
               ),
               child: Transform.rotate(
                 angle: t * math.pi * 0.75,

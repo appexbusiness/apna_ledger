@@ -41,8 +41,8 @@ class AppTheme {
       seedColor: AppColors.primary,
       brightness: Brightness.dark,
     ).copyWith(
-      primary: const Color(0xFF2DD4BF),
-      onPrimary: const Color(0xFF042F2B),
+      primary: const Color(0xFF16A394), // solid teal (no neon)
+      onPrimary: Colors.white,
       secondary: AppColors.accent,
       surface: AppColors.darkSurface,
       error: AppColors.expense,
@@ -360,18 +360,20 @@ class AppSurfaces extends ThemeExtension<AppSurfaces> {
         ),
       ];
 
-  /// A coloured glow shadow for tinted 3D objects.
+  /// Shadow for coloured objects. Deliberately neutral (not a coloured
+  /// glow) so the UI reads as solid colour; [c] is kept for API
+  /// compatibility.
   static List<BoxShadow> glow(Color c, {double strength = 1}) => [
         BoxShadow(
-          color: c.withValues(alpha: 0.32 * strength),
-          blurRadius: 22,
-          spreadRadius: -6,
-          offset: const Offset(0, 12),
+          color: const Color(0xFF0B1224).withValues(alpha: 0.16 * strength),
+          blurRadius: 14,
+          spreadRadius: -4,
+          offset: const Offset(0, 8),
         ),
         BoxShadow(
-          color: c.withValues(alpha: 0.18 * strength),
-          blurRadius: 4,
-          offset: const Offset(0, 2),
+          color: const Color(0xFF0B1224).withValues(alpha: 0.10 * strength),
+          blurRadius: 3,
+          offset: const Offset(0, 1.5),
         ),
       ];
 

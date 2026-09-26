@@ -164,36 +164,13 @@ class _AppButtonState extends State<AppButton> {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(18),
-                      gradient: solid
-                          ? LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [AppColors.lighten(base, 0.08), base],
-                            )
-                          : (v == AppButtonVariant.secondary
-                              ? LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [s.cardHi, s.card],
-                                )
-                              : null),
+                      color: solid
+                          ? base
+                          : (v == AppButtonVariant.secondary ? s.card : null),
                       border: v == AppButtonVariant.secondary
                           ? Border.all(color: context.semantic.border)
                           : null,
                     ),
-                    foregroundDecoration: solid
-                        ? BoxDecoration(
-                            borderRadius: BorderRadius.circular(18),
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.center,
-                              colors: [
-                                Colors.white.withValues(alpha: 0.22),
-                                Colors.white.withValues(alpha: 0),
-                              ],
-                            ),
-                          )
-                        : null,
                     padding: const EdgeInsets.symmetric(horizontal: 18),
                     alignment: Alignment.center,
                     child: content,

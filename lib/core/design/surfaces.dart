@@ -7,9 +7,8 @@ import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 import 'motion.dart';
 
-/// A raised, soft-3D card: lit-from-above face gradient, a 1px highlight on
-/// the top edge, and a two-layer shadow. Pass [tint] for a coloured card
-/// (face becomes a tint gradient with a matching glow).
+/// A raised card: solid face, hairline border and a soft two-layer shadow.
+/// Pass [tint] for a solid coloured card.
 class Surface3D extends StatelessWidget {
   const Surface3D({
     super.key,
@@ -38,51 +37,22 @@ class Surface3D extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = context.surfaces;
     final t = tint;
-    final gradient = t == null
-        ? LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [s.cardHi, s.card],
-          )
-        : LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.lighten(t, 0.08), AppColors.darken(t, 0.08)],
-          );
-
     Widget card = Container(
       margin: margin,
       decoration: BoxDecoration(
-        gradient: gradient,
+        color: t ?? s.card,
         borderRadius: BorderRadius.circular(radius),
-        boxShadow: elevation <= 0
-            ? null
-            : (t == null
-                ? s.elevation(elevation)
-                : AppSurfaces.glow(t, strength: elevation)),
+        boxShadow: elevation <= 0 ? null : s.elevation(elevation),
+        border: border
+            ? Border.all(
+                color: t != null
+                    ? AppColors.darken(t, 0.06)
+                    : (s.isDark
+                        ? Colors.white.withValues(alpha: 0.06)
+                        : context.semantic.border.withValues(alpha: 0.8)),
+              )
+            : null,
       ),
-      foregroundDecoration: border
-          ? BoxDecoration(
-              borderRadius: BorderRadius.circular(radius),
-              border: GradientBoxBorder(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: t == null
-                      ? [
-                          s.edge,
-                          s.isDark
-                              ? Colors.white.withValues(alpha: 0.02)
-                              : context.semantic.border.withValues(alpha: 0.7),
-                        ]
-                      : [
-                          Colors.white.withValues(alpha: 0.35),
-                          Colors.white.withValues(alpha: 0.02),
-                        ],
-                ),
-              ),
-            )
-          : null,
       child: Padding(padding: padding, child: child),
     );
 
@@ -141,8 +111,8 @@ class GradientBoxBorder extends BoxBorder {
   }
 }
 
-/// The navy "vault" panel used for hero moments (balance, auth, lock,
-/// splash): deep gradient, soft emerald + gold glows, and a faint sheen.
+/// The solid navy "vault" panel used for hero moments (balance, auth, lock,
+/// splash), with a faint dotted texture.
 class HeroPanel extends StatelessWidget {
   const HeroPanel({
     super.key,
@@ -183,16 +153,7 @@ class HeroPanel extends StatelessWidget {
           child: Container(
             foregroundDecoration: BoxDecoration(
               borderRadius: br,
-              border: GradientBoxBorder(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.22),
-                    Colors.white.withValues(alpha: 0.02),
-                  ],
-                ),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
             ),
             padding: padding,
             child: child,
@@ -210,56 +171,8 @@ class _HeroPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    canvas.drawRect(
-      rect,
-      Paint()
-        ..shader = const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.heroTop, AppColors.heroBottom],
-        ).createShader(rect),
-    );
-    void orb(Offset c, double r, Color color, double a) {
-      canvas.drawCircle(
-        c,
-        r,
-        Paint()
-          ..shader = RadialGradient(
-            colors: [color.withValues(alpha: a), color.withValues(alpha: 0)],
-          ).createShader(Rect.fromCircle(center: c, radius: r)),
-      );
-    }
-
-    orb(
-      Offset(size.width * 0.95, -size.height * 0.1),
-      size.width * 0.7,
-      glow,
-      0.34,
-    );
-    orb(
-      Offset(-size.width * 0.1, size.height * 1.05),
-      size.width * 0.55,
-      accent,
-      0.18,
-    );
-
-    // Diagonal sheen bands — reads as a polished surface.
-    final sheen = Paint()
-      ..shader = LinearGradient(
-        colors: [
-          Colors.white.withValues(alpha: 0),
-          Colors.white.withValues(alpha: 0.06),
-          Colors.white.withValues(alpha: 0),
-        ],
-      ).createShader(rect);
-    final path = Path()
-      ..moveTo(size.width * 0.45, 0)
-      ..lineTo(size.width * 0.62, 0)
-      ..lineTo(size.width * 0.32, size.height)
-      ..lineTo(size.width * 0.15, size.height)
-      ..close();
-    canvas.drawPath(path, sheen);
+    // Solid navy — no glows and no diagonal light beam.
+    canvas.drawRect(Offset.zero & size, Paint()..color = AppColors.heroTop);
 
     // Fine dotted grid, very faint.
     final dot = Paint()..color = Colors.white.withValues(alpha: 0.05);
@@ -323,8 +236,7 @@ class GlassPanel extends StatelessWidget {
   }
 }
 
-/// Page background with two soft ambient glows at the top, so content
-/// floats on light rather than a flat colour.
+/// Page background. [tint]/[secondary] are kept for call-site compatibility.
 class AmbientBackground extends StatelessWidget {
   const AmbientBackground({
     super.key,
@@ -339,50 +251,10 @@ class AmbientBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dark = context.surfaces.isDark;
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: ColoredBox(color: Theme.of(context).scaffoldBackgroundColor),
-        ),
-        Positioned(
-          top: -140,
-          right: -90,
-          child: _Blob(color: tint, size: 320, alpha: dark ? 0.16 : 0.12),
-        ),
-        Positioned(
-          top: 40,
-          left: -130,
-          child: _Blob(color: secondary, size: 260, alpha: dark ? 0.08 : 0.09),
-        ),
-        Positioned.fill(child: child),
-      ],
-    );
-  }
-}
-
-class _Blob extends StatelessWidget {
-  const _Blob({required this.color, required this.size, required this.alpha});
-  final Color color;
-  final double size;
-  final double alpha;
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [
-              color.withValues(alpha: alpha),
-              color.withValues(alpha: 0),
-            ],
-          ),
-        ),
-      ),
+    // Solid page colour (the old ambient glows were removed on purpose).
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: child,
     );
   }
 }
@@ -421,20 +293,7 @@ class IconOrb extends StatelessWidget {
         width: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: onDark
-              ? LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.18),
-                    Colors.white.withValues(alpha: 0.06),
-                  ],
-                )
-              : LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [s.cardHi, s.card],
-                ),
+          color: onDark ? Colors.white.withValues(alpha: 0.12) : s.card,
           boxShadow: onDark ? null : s.elevation(0.6),
           border: Border.all(
             color: onDark
@@ -574,18 +433,8 @@ class SegmentedPills<T> extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(height / 2),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [s.cardHi, s.card],
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: accent.withValues(alpha: 0.18),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    color: s.card,
+                    boxShadow: s.elevation(0.35),
                   ),
                 ),
               ),
@@ -692,7 +541,6 @@ class TagChip extends StatelessWidget {
             color: selected ? c : context.semantic.border,
             width: selected ? 1.5 : 1,
           ),
-          boxShadow: selected ? AppSurfaces.glow(c, strength: 0.35) : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

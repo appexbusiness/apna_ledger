@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/design/design.dart';
+import '../../../core/services/ledger_report.dart';
 import '../../../core/services/saved_files.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
@@ -12,6 +13,7 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/date_sheet.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../auth/presentation/providers/auth_controller.dart';
 import '../../categories/presentation/category_providers.dart';
 import '../domain/transaction.dart';
 import 'providers/transaction_providers.dart';
@@ -70,11 +72,34 @@ Future<void> runLedgerDownload(
     final stamp = DateFormat('yyyyMMdd-HHmmss').format(DateTime.now());
     final name = '$fileBase-$stamp.$ext';
     if (opts.format == 'pdf') {
-      await service.sharePdf(
+      final sorted = [...rows]..sort((a, b) => b.date.compareTo(a.date));
+      await service.sharePdfReport(
         fileName: name,
-        title: title,
-        header: csv.header,
-        rows: csv.rows,
+        report: LedgerReport(
+          title: title,
+          from: opts.from,
+          to: opts.to,
+          generatedAt: DateTime.now(),
+          preparedFor: ref.read(authControllerProvider)?.displayName,
+          entries: [
+            for (final t in sorted)
+              ReportEntry(
+                date: t.date,
+                typeKey: t.type.key,
+                category: cats[t.categoryId]?.name ?? '',
+                subCategory: cats[t.categoryId]
+                        ?.subCategories
+                        .where((s) => s.id == t.subCategoryId)
+                        .map((s) => s.name)
+                        .firstOrNull ??
+                    '',
+                amount: t.amount,
+                note: t.note,
+                person: t.counterparty ?? '',
+                recurring: t.isRecurring,
+              ),
+          ],
+        ),
       );
     } else {
       await service.shareCsv(
@@ -131,8 +156,21 @@ class _DownloadOptionsBody extends StatefulWidget {
 class _DownloadOptionsBodyState extends State<_DownloadOptionsBody> {
   String _format = 'pdf';
   final Set<TransactionType> _types = {};
-  DateTime? _from = DateTime.now().subtract(const Duration(days: 90));
+  // Default range: the last 4 months up to today.
+  int? _months = 4;
+  late DateTime? _from = _monthsAgo(4);
   DateTime? _to = DateTime.now();
+
+  static DateTime _monthsAgo(int m) {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month - m, now.day);
+  }
+
+  void _quick(int? months) => setState(() {
+        _months = months;
+        _from = months == null ? null : _monthsAgo(months);
+        _to = months == null ? null : DateTime.now();
+      });
 
   Future<void> _pick(bool from) async {
     final l10n = AppLocalizations.of(context);
@@ -143,7 +181,11 @@ class _DownloadOptionsBodyState extends State<_DownloadOptionsBody> {
       last: DateTime(2100),
       title: from ? l10n.dateFrom : l10n.dateTo,
     );
-    if (picked != null) setState(() => from ? _from = picked : _to = picked);
+    if (picked == null) return;
+    setState(() {
+      _months = -1; // custom range
+      from ? _from = picked : _to = picked;
+    });
   }
 
   @override
@@ -200,6 +242,24 @@ class _DownloadOptionsBodyState extends State<_DownloadOptionsBody> {
         const SizedBox(height: 20),
         GroupLabel(l10n.dateRange,
             padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final m in const [1, 4, 6, 12])
+              TagChip(
+                label: m == 12 ? '1Y' : '${m}M',
+                selected: _months == m,
+                onTap: () => _quick(m),
+              ),
+            TagChip(
+              label: l10n.allDates,
+              selected: _months == null,
+              onTap: () => _quick(null),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(

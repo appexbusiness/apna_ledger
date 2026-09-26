@@ -62,11 +62,7 @@ class _CategoryTile extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(6, 12, 6, 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [s.cardHi, s.card],
-          ),
+          color: s.card,
           border:
               Border.all(color: context.semantic.border.withValues(alpha: 0.6)),
           boxShadow: s.elevation(0.5),

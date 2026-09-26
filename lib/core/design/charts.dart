@@ -164,20 +164,12 @@ class _PillarPainter extends CustomPainter {
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
       );
 
-      // Body with cylinder shading.
+      // Solid body with a darker side band for depth.
       final body = Rect.fromLTRB(left, top, left + barW, baseY);
+      canvas.drawRect(body, Paint()..color = color);
       canvas.drawRect(
-        body,
-        Paint()
-          ..shader = LinearGradient(
-            colors: [
-              AppColors.darken(color, 0.08),
-              AppColors.lighten(color, 0.12),
-              color,
-              AppColors.darken(color, 0.18),
-            ],
-            stops: const [0, 0.35, 0.6, 1],
-          ).createShader(body),
+        Rect.fromLTRB(left + barW * 0.7, top, left + barW, baseY),
+        Paint()..color = AppColors.darken(color, 0.1),
       );
       // Bottom rounded cap.
       canvas.drawOval(
@@ -193,15 +185,7 @@ class _PillarPainter extends CustomPainter {
           Rect.fromCenter(center: Offset(cx, top), width: barW, height: ellH);
       canvas.drawOval(
         topRect,
-        Paint()
-          ..shader = LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppColors.lighten(color, 0.24),
-              AppColors.lighten(color, 0.06),
-            ],
-          ).createShader(topRect),
+        Paint()..color = AppColors.lighten(color, 0.1),
       );
       if (sel) {
         canvas.drawOval(
@@ -409,13 +393,6 @@ class _DonutPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = strokeW
           ..color = top ? c : AppColors.darken(c, 0.2);
-        if (top) {
-          paint.shader = SweepGradient(
-            startAngle: start,
-            endAngle: start + math.max(sweep, 0.001),
-            colors: [AppColors.lighten(c, 0.1), c],
-          ).createShader(rect);
-        }
         canvas.drawArc(rect, start, math.max(sweep - 0.012, 0), false, paint);
         canvas.restore();
         start += sweep;
@@ -429,23 +406,6 @@ class _DonutPainter extends CustomPainter {
     }
     ring(0, true);
 
-    // Gloss on the top face.
-    canvas.save();
-    canvas.translate(center.dx, center.dy);
-    canvas.scale(1, 0.72);
-    final gloss = Rect.fromCircle(center: Offset.zero, radius: outer);
-    canvas.drawArc(
-      gloss.deflate(strokeW * 0.15),
-      math.pi * 1.1,
-      math.pi * 0.8,
-      false,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeW * 0.18
-        ..strokeCap = StrokeCap.round
-        ..color = Colors.white.withValues(alpha: 0.22 * t),
-    );
-    canvas.restore();
   }
 
   @override
@@ -453,7 +413,7 @@ class _DonutPainter extends CustomPainter {
       old.t != t || old.selected != selected || old.data != data;
 }
 
-/// Circular progress with a raised track, gradient sweep and glowing cap.
+/// Circular progress: solid track and arc with a white end cap.
 class RingProgress extends StatelessWidget {
   const RingProgress({
     super.key,
@@ -527,24 +487,7 @@ class _RingPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = stroke
         ..strokeCap = StrokeCap.round
-        ..color = color.withValues(alpha: 0.35)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
-    );
-    canvas.drawArc(
-      rect,
-      -math.pi / 2,
-      sweep,
-      false,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = stroke
-        ..strokeCap = StrokeCap.round
-        ..shader = SweepGradient(
-          startAngle: -math.pi / 2,
-          endAngle: -math.pi / 2 + math.max(sweep, 0.01),
-          colors: [AppColors.lighten(color, 0.16), color],
-          transform: const GradientRotation(-math.pi / 2),
-        ).createShader(rect),
+        ..color = color,
     );
     final end = Offset(
       c.dx + r * math.cos(-math.pi / 2 + sweep),
@@ -558,7 +501,7 @@ class _RingPainter extends CustomPainter {
       old.v != v || old.color != color || old.track != track;
 }
 
-/// A horizontal bar that grows in; optional glow. Used for goals, category
+/// A solid horizontal bar that grows in. Used for goals, category
 /// shares and type totals.
 class GlowBar extends StatelessWidget {
   const GlowBar({
@@ -591,15 +534,7 @@ class GlowBar extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(height),
-                gradient: LinearGradient(
-                  colors: [AppColors.lighten(color, 0.12), color],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.45),
-                    blurRadius: 8,
-                  ),
-                ],
+                color: color,
               ),
             ),
           ),
@@ -644,22 +579,14 @@ class SplitBar extends StatelessWidget {
               Expanded(
                 flex: math.max(1, (f.clamp(0.0, 1.0) * 1000).round()),
                 child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppColors.lighten(leftColor, 0.1), leftColor],
-                    ),
-                  ),
+                  decoration: BoxDecoration(color: leftColor),
                 ),
               ),
               Container(width: 3, color: context.surfaces.card),
               Expanded(
                 flex: math.max(1, ((1 - f).clamp(0.0, 1.0) * 1000).round()),
                 child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [rightColor, AppColors.lighten(rightColor, 0.1)],
-                    ),
-                  ),
+                  decoration: BoxDecoration(color: rightColor),
                 ),
               ),
             ],

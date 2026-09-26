@@ -33,6 +33,12 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
     if (err != null) toast.error(err);
   }
 
+  Future<void> _openFolder(SavedFile f) async {
+    final toast = Toaster.of(context);
+    final err = await openSavedFolder(f);
+    if (err != null) toast.info(err);
+  }
+
   Future<void> _share(SavedFile f) async {
     await Share.shareXFiles(
       [XFile(f.path, mimeType: f.isPdf ? 'application/pdf' : 'text/csv')],
@@ -131,6 +137,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                                     file: files[i],
                                     onOpen: () => _open(files[i]),
                                     onShare: () => _share(files[i]),
+                                    onFolder: () => _openFolder(files[i]),
                                     onDelete: () => _delete(files[i]),
                                   ),
                                 ),
@@ -185,8 +192,8 @@ class _Summary extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       child: Row(
         children: [
-          stat('PDF', '$pdfs', const Color(0xFFFF9C9C)),
-          stat('CSV', '$csvs', const Color(0xFF6EE7A8)),
+          stat('PDF', '$pdfs', AppColors.onDarkOut),
+          stat('CSV', '$csvs', AppColors.onDarkIn),
           stat('Size', _size(total), AppColors.accentSoft),
         ],
       ),
@@ -200,12 +207,14 @@ class _FileCard extends StatelessWidget {
     required this.onOpen,
     required this.onShare,
     required this.onDelete,
+    required this.onFolder,
   });
 
   final SavedFile file;
   final VoidCallback onOpen;
   final VoidCallback onShare;
   final VoidCallback onDelete;
+  final VoidCallback onFolder;
 
   @override
   Widget build(BuildContext context) {
@@ -258,6 +267,46 @@ class _FileCard extends StatelessWidget {
                 onPressed: onDelete,
               ),
             ],
+          ),
+          const SizedBox(height: 10),
+          // Where it lives on the device — tap to open that folder.
+          Pressable(
+            onTap: onFolder,
+            pressedScale: 0.98,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+              decoration: BoxDecoration(
+                color: context.surfaces.surface2,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.folder_rounded,
+                      size: 18, color: AppColors.accent,),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      file.location,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.primary,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withValues(alpha: 0.4),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Icon(Icons.open_in_new_rounded,
+                      size: 16, color: context.semantic.muted,),
+                ],
+              ),
+            ),
           ),
           const SizedBox(height: 10),
           Row(

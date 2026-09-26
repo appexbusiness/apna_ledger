@@ -125,11 +125,7 @@ class _GoogleButtonState extends ConsumerState<GoogleButton> {
         height: 54,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [s.cardHi, s.card],
-          ),
+          color: s.card,
           border: Border.all(color: context.semantic.border),
           boxShadow: s.elevation(0.5),
         ),

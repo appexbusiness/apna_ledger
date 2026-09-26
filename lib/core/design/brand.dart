@@ -7,9 +7,8 @@ import '../theme/app_colors.dart';
 import 'motion.dart';
 
 /// The Apna Ledger mark (transparent wallet + calculator art), brought to
-/// life: a breathing glow halo behind it, a gentle float, a soft floor
-/// shadow, and a light sweep that glints across the artwork every few
-/// seconds (clipped to the logo's own shape).
+/// life: a softly breathing solid halo behind it, a gentle float, a soft floor
+/// shadow. (No light-sweep effect, by design.)
 class BrandLogo extends StatefulWidget {
   const BrandLogo({
     super.key,
@@ -72,9 +71,6 @@ class _BrandLogoState extends State<BrandLogo>
       builder: (context, _) {
         final t = _c.value;
         final wave = math.sin(t * 2 * math.pi);
-        // Shine crosses during the first 30% of each cycle, then rests.
-        final sweep = (t / 0.3).clamp(0.0, 1.0);
-        final shining = t < 0.3;
         return SizedBox(
           width: s * 1.3,
           height: s * 1.3,
@@ -87,12 +83,7 @@ class _BrandLogoState extends State<BrandLogo>
                   height: s * (1.15 + 0.06 * wave),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        widget.haloColor.withValues(alpha: 0.30 + 0.08 * wave),
-                        widget.haloColor.withValues(alpha: 0),
-                      ],
-                    ),
+                    color: widget.haloColor.withValues(alpha: 0.14 + 0.04 * wave),
                   ),
                 ),
               // Floor shadow shrinks as the logo rises.
@@ -117,23 +108,7 @@ class _BrandLogoState extends State<BrandLogo>
                 offset: Offset(0, -s * 0.04 * (wave + 1) / 2),
                 child: Transform.rotate(
                   angle: wave * 0.025,
-                  child: shining
-                      ? ShaderMask(
-                          blendMode: BlendMode.srcATop,
-                          shaderCallback: (rect) => LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.white.withValues(alpha: 0),
-                              Colors.white.withValues(alpha: 0.55),
-                              Colors.white.withValues(alpha: 0),
-                            ],
-                            stops: const [0.35, 0.5, 0.65],
-                            transform: _Sweep(sweep),
-                          ).createShader(rect),
-                          child: image,
-                        )
-                      : image,
+                  child: image,
                 ),
               ),
             ],
@@ -142,19 +117,6 @@ class _BrandLogoState extends State<BrandLogo>
       },
     );
   }
-}
-
-class _Sweep extends GradientTransform {
-  const _Sweep(this.t);
-  final double t;
-
-  @override
-  Matrix4? transform(Rect bounds, {TextDirection? textDirection}) =>
-      Matrix4.translationValues(
-        bounds.width * (t * 2.4 - 1.2),
-        bounds.height * (t * 2.4 - 1.2),
-        0,
-      );
 }
 
 /// The Appex Business mark on a light chip, so its navy "A" stays visible
@@ -226,12 +188,7 @@ class BrandSlogan extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              colors: [
-                AppColors.accent.withValues(alpha: onDark ? 0.22 : 0.16),
-                AppColors.accent.withValues(alpha: onDark ? 0.08 : 0.05),
-              ],
-            ),
+            color: AppColors.accent.withValues(alpha: onDark ? 0.18 : 0.12),
             border: Border.all(
               color: AppColors.accent.withValues(alpha: 0.55),
             ),
